@@ -53,6 +53,7 @@
             --slider-mark-height: 8px;
             --slider-mark-width: 1px;
             --slider-marks-height: 20px;
+            --slider-focus-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5);
         }
 
         body {
@@ -94,6 +95,27 @@
             border-radius: var(--border-radius);
             font-size: var(--font-size-base);
             box-sizing: border-box;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]:focus::-webkit-slider-thumb {
+            box-shadow: var(--slider-focus-shadow);
+            ;
+            transform: scale(1.1);
+        }
+
+        input[type="range"]:focus::-moz-range-thumb {
+            box-shadow: var(--slider-focus-shadow);
+            ;
+            transform: scale(1.1);
+        }
+
+        input[type="range"]:focus {
+            background: rgba(76, 175, 80, 0.1);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
         }
 
         .slider-container {
@@ -192,7 +214,7 @@
 
         <div class="input-group">
             <label for="currentAge">Enter your current age:</label>
-            <input type="number" id="currentAge" min="0" max="150" placeholder="e.g., 25">
+            <input type="number" id="currentAge" min="0" max="150" placeholder="e.g., 25" value="25">
         </div>
 
         <div class="input-group">
