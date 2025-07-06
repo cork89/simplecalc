@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🧓🏻</text></svg>" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Age Calculator</h1>
+
+        <div class="input-group">
+            <label for="currentAge">Enter your current age:</label>
+            <input type="number" id="currentAge" min="0" max="150" placeholder="e.g., 25" value="25">
+        </div>
+
+        <div class="input-group">
+            <label for="yearSlider">Select a year:</label>
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <div class="decade-marks" id="decadeMarks"></div>
+                    <input type="range" id="yearSlider" min="1900" max="2100" value="2025" step="1">
+                </div>
+                <div class="year-display" id="yearDisplay">2025</div>
+            </div>
+        </div>
+
+        <div class="result" id="result">
+            Enter your age to see the calculation
+        </div>
+    </div>
+
+    <script>
+        const currentAgeInput = document.getElementById('currentAge');
+        const yearSlider = document.getElementById('yearSlider');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const result = document.getElementById('result');
+        const decadeMarks = document.getElementById('decadeMarks');
+
+        const currentYear = 2025;
+        const minYear = 1900;
+        const maxYear = 2100;
+
+        function createDecadeMarks() {
+            const totalRange = maxYear - minYear;
+
+            // Create marks for every decade (years ending in 0)
+            for (let year = 1900; year <= 2100; year += 10) {
+                const position = ((year - minYear) / totalRange) * 100;
+
+                // Create the mark line
+                const mark = document.createElement('div');
+                mark.className = 'decade-mark';
+                mark.style.left = position + '%';
+                decadeMarks.appendChild(mark);
+
+                // Create the label (show every other decade to avoid crowding)
+                if (year % 20 === 0) {
+                    const label = document.createElement('div');
+                    label.className = 'decade-label';
+                    label.style.left = position + '%';
+                    label.textContent = year;
+                    decadeMarks.appendChild(label);
+                }
+            }
+        }
+
+        function calculateAge() {
+            const currentAge = parseInt(currentAgeInput.value);
+            const selectedYear = parseInt(yearSlider.value);
+
+            if (!currentAge || currentAge < 0) {
+                result.textContent = 'Please enter a valid age';
+                result.className = 'result error';
+                return;
+            }
+
+            const birthYear = currentYear - currentAge;
+            const ageInSelectedYear = selectedYear - birthYear;
+
+            result.className = 'result';
+
+            if (ageInSelectedYear < 0) {
+                result.textContent = `Not born yet (would be born in ${birthYear})`;
+            } else if (ageInSelectedYear === 0) {
+                result.textContent = `Birth year!`;
+            } else {
+                result.textContent = `Age in ${selectedYear}: ~${ageInSelectedYear} years old`;
+            }
+        }
+
+        function updateYearDisplay() {
+            yearDisplay.textContent = yearSlider.value;
+            calculateAge();
+        }
+
+        // Event listeners
+        currentAgeInput.addEventListener('input', calculateAge);
+        yearSlider.addEventListener('input', updateYearDisplay);
+
+        // Initialize
+        createDecadeMarks();
+        updateYearDisplay();
+    </script>
+</body>
+
+</html>

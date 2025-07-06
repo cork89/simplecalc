@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Calculator</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <script src="components.js" type="module"></script>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🏠</text></svg>" />
+
+    <style>
+        .cash-breakdown {
+            background: var(--success-background);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin-top: var(--spacing-md);
+            font-size: 14px;
+            color: var(--success-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Simple Mortgage Calculator</h1>
+        <div class="toggle-rule">
+            <a href="rule1.html"><button class="toggle-button">
+                    Switch to 28% Rule
+                </button></a>
+        </div>
+        <div class="rule-description">
+            <strong>30/30/3 Rule:</strong><br />
+            <div style="text-align: left; margin-left: 2em;">
+                1. Maximum 30% of income for mortgage payments<br />
+                2. 30% of home value in cash (20% down + 10% for repairs/emergencies)<br />
+                3. Home price should not exceed 3x annual income
+            </div>
+        </div>
+
+        <custom-slider id="homePrice" label="Home Price" min="100000" max="800000" value="300000" step="10000" unit="$">
+        </custom-slider>
+
+        <custom-slider id="interestRate" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
+        </custom-slider>
+
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">Home Price:</span>
+                <span class="result-value" id="displayHomePrice">$300,000</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Monthly Payment:</span>
+                <span class="result-value" id="monthlyPayment">$1,775</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Interest Rate:</span>
+                <span class="result-value" id="displayRate">6.5%</span>
+            </div>
+            <div class="result-item main-result">
+                <span class="result-label">Required Annual Income:</span>
+                <span class="result-value" id="requiredIncome">$71,000</span>
+            </div>
+
+            <div class="cash-breakdown">
+                <strong>Cash Required (30% of home value):</strong><br />
+                • Down Payment (20%): <span id="downPaymentAmount">$60,000</span><br />
+                • Repair/Emergency Fund (10%):
+                <span id="repairFundAmount">$30,000</span><br />
+                • <strong>Total Cash Needed: <span id="totalCashNeeded">$90,000</span></strong>
+            </div>
+        </div>
+    </div>
+    <script src="rule2.js" type="module"></script>
+</body>
+
+</html>
