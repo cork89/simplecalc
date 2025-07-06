@@ -12,6 +12,7 @@ type Rule1Store = {
     interestRate: number
 }
 
+
 const rule1StorageKey: string = "rule1Store"
 const rule1LocationStorage: string | null = localStorage.getItem(rule1StorageKey)
 let rule1Store: Rule1Store
