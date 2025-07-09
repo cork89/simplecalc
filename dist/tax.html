@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculator</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="components.js" type="module"></script>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🧓🏻</text></svg>" />
+    <script defer data-domain="calc.hearteyesemoji.dev"
+        src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="app-name dancing-script-1">Simple Calc</div>
+            <nav class="header-nav">
+                <a href="./" class="nav-link">Age</a>
+                <a href="./rule1.html" class="nav-link">Mortgage</a>
+                <a href="./tax.html" class="nav-link">Tax</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Marginal Tax Calculator</h1>
+
+        <custom-slider id="grossIncome" label="Annual Income" min="30000" max="1000000" value="75000" step="5000"
+            unit="$">
+        </custom-slider>
+
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">Standard Deduction:</span>
+                <span class="result-value" id="standardDeduction">$15,750</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Taxable Income:</span>
+                <span class="result-value" id="taxableIncome">$59,250</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">10% Bracket:</span>
+                <span class="result-value" id="bracket10">$1,192.50</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">12% Bracket:</span>
+                <span class="result-value" id="bracket12">$4,386.00</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">22% Bracket:</span>
+                <span class="result-value" id="bracket22">$2,370.28</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">24% Bracket:</span>
+                <span class="result-value" id="bracket24">$0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">32% Bracket:</span>
+                <span class="result-value" id="bracket32">$0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">35% Bracket:</span>
+                <span class="result-value" id="bracket35">$0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">37% Bracket:</span>
+                <span class="result-value" id="bracket37">$0</span>
+            </div>
+            <div class="result-item main-result">
+                <span class="result-label">Total Taxes Owed:</span>
+                <span class="result-value" id="totalTaxes">$7948.78</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="tax.js" type="module"></script>
+</body>
+
+</html>
