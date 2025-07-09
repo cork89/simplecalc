@@ -1,9 +1,6 @@
 import { CustomSliderEventDetail } from "./global"
 
-// const monthlyIncome: HTMLElement = document.getElementById("monthlyIncome") ?? (() => { throw new Error("monthlyIncome cannot be null") })()
-// const maxPayment: HTMLElement = document.getElementById("maxPayment") ?? (() => { throw new Error("maxPayment cannot be null") })()
-// const rule1displayRate: HTMLElement = document.getElementById("displayRate") ?? (() => { throw new Error("displayRate cannot be null") })()
-
+const radioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="fileType"]')
 const standardDeduction: HTMLElement = document.getElementById("standardDeduction") ?? (() => { throw new Error("standardDeduction cannot be null") })()
 const taxableIncome: HTMLElement = document.getElementById("taxableIncome") ?? (() => { throw new Error("taxableIncome cannot be null") })()
 const bracket10: HTMLElement = document.getElementById("bracket10") ?? (() => { throw new Error("bracket10 cannot be null") })()
@@ -79,7 +76,7 @@ const bracketInfo: BracketInfo = {
                 taxes: (626350 - 250526) * 0.35,
             },
             {
-                min: 626350,
+                min: 626351,
                 max: 1000001,
                 rate: 0.37,
                 taxes: (1000000 - 626350) * 0.37,
@@ -236,13 +233,8 @@ type TaxStore = {
     standardDeduction: number
     taxableIncome: number
     brackets: number[]
-    // bracket12: number
-    // bracket22: number
-    // bracket24: number
-    // bracket32: number
-    // bracket35: number
-    // bracket37: number
     totalTaxes: number
+    filingType: FilingType
 }
 
 
@@ -265,14 +257,8 @@ if (taxLocationStorage) {
             0,
             0,
         ],
-        // bracket10: bracketInfo[FilingType.SINGLE].details[0].taxes,
-        // bracket12: bracketInfo[FilingType.SINGLE].details[1].taxes,
-        // bracket22: (75000 - 15750 - bracketInfo[FilingType.SINGLE].details[2].min) * bracketInfo[FilingType.SINGLE].details[2].rate,
-        // bracket24: 0,
-        // bracket32: 0,
-        // bracket35: 0,
-        // bracket37: 0,
         totalTaxes: 7948.78,
+        filingType: FilingType.SINGLE
     }
 }
 
@@ -285,42 +271,20 @@ function formatCurrency(amount: number): string {
     }).format(amount);
 }
 
-function calculateLoanAmount(monthlyPayment: number, annualRate: number, years: number = 30): number {
-    const monthlyRate = annualRate / 100 / 12;
-    const numPayments = years * 12;
-
-    let amortizedRate: number = 1
-    const monthlyRatePlus1 = 1 + monthlyRate
-    for (let i = 0; i < numPayments; ++i) {
-        amortizedRate *= monthlyRatePlus1
-    }
-
-    const loanAmount = monthlyPayment * ((1 - 1 / amortizedRate) / monthlyRate);
-    return loanAmount;
-}
-
-function updateIncomeCalculations(): void {
-    // rule1Store.monthlyIncomeAmount = rule1Store.annualIncome / 12
-    // rule1Store.maxMonthlyPayment = rule1Store.monthlyIncomeAmount * 0.28
-    // maxPayment.textContent = formatCurrency(rule1Store.maxMonthlyPayment)
-    // monthlyIncome.textContent = formatCurrency(rule1Store.monthlyIncomeAmount)
-    // updateCalculations()
-}
-
 function updateCalculations(): void {
     taxStore.totalTaxes = 0
-    for (let i = 0; i < bracketInfo[FilingType.SINGLE].details.length; ++i) {
+    for (let i = 0; i < bracketInfo[taxStore.filingType].details.length; ++i) {
         let bracketTax = 0
-        if (taxStore.taxableIncome < bracketInfo[FilingType.SINGLE].details[i].max && taxStore.taxableIncome > bracketInfo[FilingType.SINGLE].details[i].min) {
-            bracketTax = (taxStore.taxableIncome - bracketInfo[FilingType.SINGLE].details[i].min) * bracketInfo[FilingType.SINGLE].details[i].rate
-        } else if (taxStore.taxableIncome > bracketInfo[FilingType.SINGLE].details[i].max) {
-            bracketTax = bracketInfo[FilingType.SINGLE].details[i].taxes
+        if (taxStore.taxableIncome < bracketInfo[taxStore.filingType].details[i].max && taxStore.taxableIncome > bracketInfo[taxStore.filingType].details[i].min) {
+            bracketTax = (taxStore.taxableIncome - bracketInfo[taxStore.filingType].details[i].min) * bracketInfo[taxStore.filingType].details[i].rate
+        } else if (taxStore.taxableIncome > bracketInfo[taxStore.filingType].details[i].max) {
+            bracketTax = bracketInfo[taxStore.filingType].details[i].taxes
         }
         taxStore.brackets[i] = bracketTax
         brackets[i].textContent = formatCurrency(bracketTax)
         taxStore.totalTaxes += bracketTax
     }
-    taxStore.standardDeduction = bracketInfo[FilingType.SINGLE].standardDeduction
+    taxStore.standardDeduction = bracketInfo[taxStore.filingType].standardDeduction
     taxStore.taxableIncome = taxStore.annualIncome - taxStore.standardDeduction
     standardDeduction.textContent = formatCurrency(taxStore.standardDeduction)
     taxableIncome.textContent = formatCurrency(taxStore.taxableIncome)
@@ -335,8 +299,52 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     localStorage.setItem(taxStorageKey, JSON.stringify(taxStore))
 })
 
+radioButtons.forEach((button: Element) => {
+    button.addEventListener("change", (event: Event) => {
+        const target = event.target as HTMLInputElement
+        const selectedFilingType = target.value
+        console.log(selectedFilingType)
+        switch (selectedFilingType) {
+            case "married":
+                taxStore.filingType = FilingType.MARRIED;
+                break;
+            case "hoh":
+                taxStore.filingType = FilingType.HOH;
+                break;
+            case "marriedsep":
+                taxStore.filingType = FilingType.MARRIEDSEP;
+                break;
+            default:
+                taxStore.filingType = FilingType.SINGLE;
+        }
+        console.log(taxStore.filingType)
+        updateCalculations()
+        localStorage.setItem(taxStorageKey, JSON.stringify(taxStore))
+        console.log(selectedFilingType)
+    })
+})
+
+function convertFilingType(): string {
+    switch (taxStore.filingType) {
+        case FilingType.MARRIED:
+            return "married";
+        case FilingType.HOH:
+            return "hoh"
+        case FilingType.MARRIEDSEP:
+            return "marriedsep"
+        default:
+            return "single";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const grossIncome: HTMLElement = document.getElementById("grossIncome") ?? (() => { throw new Error("grossIncome cannot be null") })()
     grossIncome.setAttribute("value", `${taxStore.annualIncome}`)
+
+    const savedFilingType: string = convertFilingType()
+    radioButtons.forEach((button) => {
+        const btn = button as HTMLInputElement
+        if (btn.value == savedFilingType) btn.checked = true
+    })
 })
 updateCalculations()

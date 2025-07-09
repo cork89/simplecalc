@@ -14,7 +14,7 @@
         rel="stylesheet">
     <script src="components.js" type="module"></script>
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>🧓🏻</text></svg>" />
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='-4' y='14'>🧾</text></svg>" />
     <script defer data-domain="calc.hearteyesemoji.dev"
         src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
 </head>
@@ -36,7 +36,23 @@
         <custom-slider id="grossIncome" label="Annual Income" min="30000" max="1000000" value="75000" step="5000"
             unit="$">
         </custom-slider>
-
+        <div class="input-group">
+            <label>Filing Type</label>
+            <div style="display:flex; justify-content: space-around; flex-wrap: wrap;">
+                <label>
+                    <input type="radio" name="fileType" value="single" checked> Single
+                </label>
+                <label>
+                    <input type="radio" name="fileType" value="married"> Married
+                </label>
+                <label>
+                    <input type="radio" name="fileType" value="hoh"> Head of Household
+                </label>
+                <label>
+                    <input type="radio" name="fileType" value="marriedsep"> Married, filing separately
+                </label>
+            </div>
+        </div>
         <div class="results">
             <div class="result-item">
                 <span class="result-label">Standard Deduction:</span>

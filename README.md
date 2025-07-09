@@ -1,5 +1,10 @@
-# agecalculator
-Simple age calculator
+# simplecalc
+Simple calculators
+
+* supports the following simple calculators
+  * age
+  * mortgage
+  * marginal tax
 
 * this is currently deployed using cloudflare workers
   * the index.html is placed in a r2 bucket
