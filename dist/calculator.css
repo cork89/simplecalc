@@ -62,3 +62,10 @@
 .toggle-button:hover {
     background: #45a049;
 }
+
+.radio-selection {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    accent-color: var(--primary-color);
+}
