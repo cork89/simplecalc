@@ -48,7 +48,7 @@
 }
 
 .toggle-button {
-    background: var(--primary-color);
+    background: var(--primary-background);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -67,5 +67,5 @@
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
-    accent-color: var(--primary-color);
+    accent-color: var(--primary-background);
 }
