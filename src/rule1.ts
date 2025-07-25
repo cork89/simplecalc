@@ -61,7 +61,7 @@ function updateIncomeCalculations(): void {
 }
 
 function updateCalculations(): void {
-    const maxLoan = calculateLoanAmount(rule1Store.maxMonthlyPayment, rule1Store.interestRate, rule1Store.loanTerm)
+    const maxLoan = calculateLoanAmount(rule1Store.maxMonthlyPayment, rule1Store.interestRate, rule1Store.loanTerm ?? 30)
     maxLoanAmount.textContent = formatCurrency(maxLoan);
 }
 

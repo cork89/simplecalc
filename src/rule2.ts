@@ -68,7 +68,7 @@ function updateHomePriceCalculations(): void {
     rule2Store.repairFund = rule2Store.homePrice * 0.1
     rule2Store.downPayment = rule2Store.repairFund + rule2Store.repairFund
     rule2Store.loanAmount = rule2Store.homePrice - rule2Store.downPayment
-    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm)
+    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm ?? 30)
 
     const requiredAnnualIncome: number = monthlyPmt * 3 * 12
     // rule2Store.homePrice / 3
@@ -82,7 +82,7 @@ function updateHomePriceCalculations(): void {
 
 function updateInterestCalculations(): void {
     rule2DisplayRate.textContent = rule2Store.interestRate + "%"
-    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm)
+    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm ?? 30)
     monthlyPayment.textContent = formatCurrency(monthlyPmt)
 }
 
