@@ -14,6 +14,7 @@ type Rule2Store = {
     downPayment: number
     loanAmount: number
     interestRate: number
+    loanTerm: number
 }
 
 const rule2StorageKey: string = "rule2Store"
@@ -28,6 +29,7 @@ if (rule2LocationStorage) {
         downPayment: 300000 * 0.2,
         loanAmount: 300000 - 300000 * 0.2,
         interestRate: 6.5,
+        loanTerm: 30,
     }
 }
 
@@ -43,7 +45,7 @@ function formatCurrency(amount: number): string {
 function calculateMonthlyPayment(
     loanAmount: number,
     annualRate: number,
-    years: number = 30,
+    years: number,
 ): number {
     const monthlyRate: number = annualRate / 100 / 12
     const numPayments: number = years * 12
@@ -66,9 +68,10 @@ function updateHomePriceCalculations(): void {
     rule2Store.repairFund = rule2Store.homePrice * 0.1
     rule2Store.downPayment = rule2Store.repairFund + rule2Store.repairFund
     rule2Store.loanAmount = rule2Store.homePrice - rule2Store.downPayment
-    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate)
+    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm)
 
-    const requiredAnnualIncome: number = rule2Store.homePrice / 3
+    const requiredAnnualIncome: number = monthlyPmt * 3 * 12
+    // rule2Store.homePrice / 3
 
     monthlyPayment.textContent = formatCurrency(monthlyPmt)
     requiredIncome.textContent = formatCurrency(requiredAnnualIncome)
@@ -79,26 +82,41 @@ function updateHomePriceCalculations(): void {
 
 function updateInterestCalculations(): void {
     rule2DisplayRate.textContent = rule2Store.interestRate + "%"
-    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate)
+    const monthlyPmt: number = calculateMonthlyPayment(rule2Store.loanAmount, rule2Store.interestRate, rule2Store.loanTerm)
     monthlyPayment.textContent = formatCurrency(monthlyPmt)
 }
 
 document.body.addEventListener("slider-change", (event: CustomEvent<CustomSliderEventDetail>) => {
     if (event.detail.id == "homePrice") {
         rule2Store.homePrice = parseInt(event.detail.value)
-        updateHomePriceCalculations()
     } else if (event.detail.id == "interestRate") {
-        // console.log(eventent)
         rule2Store.interestRate = parseFloat(event.detail.value)
-        updateInterestCalculations()
     }
+    updateHomePriceCalculations()
+    updateInterestCalculations()
     localStorage.setItem(rule2StorageKey, JSON.stringify(rule2Store))
 })
+
+const loanTermRadioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="loanTerm"]')
+loanTermRadioButtons.forEach((button: Element) => {
+    button.addEventListener("change", (event: Event) => {
+        const target = event.target as HTMLInputElement
+        rule2Store.loanTerm = parseInt(target.value)
+        updateHomePriceCalculations()
+        localStorage.setItem(rule2StorageKey, JSON.stringify(rule2Store))
+    })
+})
+
 document.addEventListener("DOMContentLoaded", () => {
     const homePrice: HTMLElement = document.getElementById("homePrice") ?? (() => { throw new Error("homePrice cannot be null") })()
     const interestRate: HTMLElement = document.getElementById("interestRate") ?? (() => { throw new Error("interestRate cannot be null") })()
     homePrice.setAttribute("value", `${rule2Store.homePrice}`)
     interestRate.setAttribute("value", `${rule2Store.interestRate}`)
+
+    loanTermRadioButtons.forEach((button) => {
+        const btn = button as HTMLInputElement
+        if (parseInt(btn.value) == rule2Store.loanTerm) btn.checked = true
+    })
 })
 updateHomePriceCalculations()
 updateInterestCalculations()

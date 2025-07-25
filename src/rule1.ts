@@ -10,6 +10,7 @@ type Rule1Store = {
     monthlyIncomeAmount: number
     maxMonthlyPayment: number
     interestRate: number
+    loanTerm: number
 }
 
 
@@ -24,6 +25,7 @@ if (rule1LocationStorage) {
         monthlyIncomeAmount: 75000 / 12,
         maxMonthlyPayment: 75000 / 12 * 0.28,
         interestRate: 6.5,
+        loanTerm: 30,
     }
 }
 
@@ -36,7 +38,7 @@ function formatCurrency(amount: number): string {
     }).format(amount);
 }
 
-function calculateLoanAmount(monthlyPayment: number, annualRate: number, years: number = 30): number {
+function calculateLoanAmount(monthlyPayment: number, annualRate: number, years: number): number {
     const monthlyRate = annualRate / 100 / 12;
     const numPayments = years * 12;
 
@@ -59,7 +61,7 @@ function updateIncomeCalculations(): void {
 }
 
 function updateCalculations(): void {
-    const maxLoan = calculateLoanAmount(rule1Store.maxMonthlyPayment, rule1Store.interestRate)
+    const maxLoan = calculateLoanAmount(rule1Store.maxMonthlyPayment, rule1Store.interestRate, rule1Store.loanTerm)
     maxLoanAmount.textContent = formatCurrency(maxLoan);
 }
 
@@ -75,10 +77,25 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     localStorage.setItem(rule1StorageKey, JSON.stringify(rule1Store))
 })
 
+const loanTermRadioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="loanTerm"]')
+loanTermRadioButtons.forEach((button: Element) => {
+    button.addEventListener("change", (event: Event) => {
+        const target = event.target as HTMLInputElement
+        rule1Store.loanTerm = parseInt(target.value)
+        updateCalculations()
+        localStorage.setItem(rule1StorageKey, JSON.stringify(rule1Store))
+    })
+})
+
 document.addEventListener("DOMContentLoaded", () => {
     const grossIncome: HTMLElement = document.getElementById("grossIncome") ?? (() => { throw new Error("grossIncome cannot be null") })()
     const interestRate: HTMLElement = document.getElementById("interestRate") ?? (() => { throw new Error("interestRate cannot be null") })()
     grossIncome.setAttribute("value", `${rule1Store.annualIncome}`)
     interestRate.setAttribute("value", `${rule1Store.interestRate}`)
+
+    loanTermRadioButtons.forEach((button) => {
+        const btn = button as HTMLInputElement
+        if (parseInt(btn.value) == rule1Store.loanTerm) btn.checked = true
+    })
 })
 updateIncomeCalculations()

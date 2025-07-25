@@ -120,7 +120,7 @@ class CustomSlider extends HTMLElement {
             width: var(--slider-thumb-size);
             height: var(--slider-thumb-size);
             border-radius: 50%;
-            background: var(--primary-color);
+            background: var(--success-color);
             cursor: pointer;
         }
             
@@ -128,7 +128,7 @@ class CustomSlider extends HTMLElement {
             width: var(--slider-thumb-size);
             height: var(--slider-thumb-size);
             border-radius: 50%;
-            background: var(--primary-color);
+            background: var(--success-color);
             cursor: pointer;
             border: none;
         }
