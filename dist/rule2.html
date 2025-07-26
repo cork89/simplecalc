@@ -40,22 +40,7 @@
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <div class="app-name dancing-script-1">Simple Calc</div>
-            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <nav class="header-nav">
-                <a href="./" class="nav-link">Age</a>
-                <a href="./rule1.html" class="nav-link">Mortgage</a>
-                <a href="./student.html" class="nav-link">Student Loans</a>
-                <a href="./tax.html" class="nav-link">Tax</a>
-            </nav>
-        </div>
-    </header>
+    <simple-header></simple-header>
     <div class="container">
         <h1>Mortgage Calculator</h1>
         <div class="toggle-rule">
@@ -72,11 +57,11 @@
             </div>
         </div>
 
-        <custom-slider id="homePrice" label="Home Price" min="100000" max="800000" value="300000" step="10000" unit="$">
-        </custom-slider>
+        <simple-slider id="homePrice" label="Home Price" min="100000" max="800000" value="300000" step="10000" unit="$">
+        </simple-slider>
 
-        <custom-slider id="interestRate" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
-        </custom-slider>
+        <simple-slider id="interestRate" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
+        </simple-slider>
 
         <div class="input-group">
             <label>Loan Term</label>
@@ -121,7 +106,6 @@
             </div>
         </div>
     </div>
-    <script src="common.js"></script>
     <script src="store.js" type="module"></script>
     <script src="rule2.js" type="module"></script>
 </body>

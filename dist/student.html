@@ -28,35 +28,20 @@
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <div class="app-name dancing-script-1">Simple Calc</div>
-            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <nav class="header-nav">
-                <a href="./" class="nav-link">Age</a>
-                <a href="./rule1.html" class="nav-link">Mortgage</a>
-                <a href="./student.html" class="nav-link">Student Loans</a>
-                <a href="./tax.html" class="nav-link">Tax</a>
-            </nav>
-        </div>
-    </header>
+    <simple-header></simple-header>
     <div class="container">
-        <h1>Student Loan Calculator</h1>
+        <h1>Student Loans Calculator</h1>
 
-        <custom-slider id="loanAmount" label="Total Loan Amount" min="5000" max="200000" value="40000" step="1000"
+        <simple-slider id="loanAmount" label="Total Loan Amount" min="5000" max="200000" value="40000" step="1000"
             unit="$">
-        </custom-slider>
+        </simple-slider>
 
-        <custom-slider id="interestRate" label="Average Interest Rate (%)" min="3" max="18" value="6.5" step="0.1"
+        <simple-slider id="interestRate" label="Average Interest Rate (%)" min="3" max="18" value="6.5" step="0.1"
             unit="%">
-        </custom-slider>
+        </simple-slider>
 
-        <custom-slider id="loanTerm" label="Payoff years" min="1" max="20" value="10" step="1" unit="yrs">
-        </custom-slider>
+        <simple-slider id="loanTerm" label="Payoff years" min="1" max="20" value="10" step="1" unit="yrs">
+        </simple-slider>
 
         <div class="results">
             <div class="result-item">
@@ -69,7 +54,6 @@
             </div>
         </div>
     </div>
-    <script src="common.js"></script>
     <script src="store.js" type="module"></script>
     <script src="student.js" type="module"></script>
 </body>

@@ -21,6 +21,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+    <script src="components.js" type="module"></script>
     <!-- <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='-4' y='14'>🧓🏻</text></svg>" /> -->
     <link rel="icon" href="simplecalc.ico" />
@@ -29,22 +30,7 @@
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <div class="app-name dancing-script-1">Simple Calc</div>
-            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <nav class="header-nav">
-                <a href="./" class="nav-link">Age</a>
-                <a href="./rule1.html" class="nav-link">Mortgage</a>
-                <a href="./student.html" class="nav-link">Student Loans</a>
-                <a href="./tax.html" class="nav-link">Tax</a>
-            </nav>
-        </div>
-    </header>
+    <simple-header></simple-header>
     <div class="container">
         <h1>Age Calculator</h1>
 
@@ -69,7 +55,6 @@
         </div>
     </div>
 
-    <script src="common.js"></script>
     <script>
         const currentAgeInput = document.getElementById('currentAge');
         const yearSlider = document.getElementById('yearSlider');
