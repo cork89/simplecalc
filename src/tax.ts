@@ -3,16 +3,10 @@ import { CustomSliderEventDetail } from "./global"
 const radioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="fileType"]')
 const standardDeduction: HTMLElement = document.getElementById("standardDeduction") ?? (() => { throw new Error("standardDeduction cannot be null") })()
 const taxableIncome: HTMLElement = document.getElementById("taxableIncome") ?? (() => { throw new Error("taxableIncome cannot be null") })()
-const bracket10: HTMLElement = document.getElementById("bracket10") ?? (() => { throw new Error("bracket10 cannot be null") })()
-const bracket12: HTMLElement = document.getElementById("bracket12") ?? (() => { throw new Error("bracket12 cannot be null") })()
-const bracket22: HTMLElement = document.getElementById("bracket22") ?? (() => { throw new Error("bracket22 cannot be null") })()
-const bracket24: HTMLElement = document.getElementById("bracket24") ?? (() => { throw new Error("bracket24 cannot be null") })()
-const bracket32: HTMLElement = document.getElementById("bracket32") ?? (() => { throw new Error("bracket32 cannot be null") })()
-const bracket35: HTMLElement = document.getElementById("bracket35") ?? (() => { throw new Error("bracket35 cannot be null") })()
-const bracket37: HTMLElement = document.getElementById("bracket37") ?? (() => { throw new Error("bracket37 cannot be null") })()
 const totalTaxes: HTMLElement = document.getElementById("totalTaxes") ?? (() => { throw new Error("totalTaxes cannot be null") })()
+const taxChart = document.getElementById("taxChart") ?? (() => { throw new Error("taxChart cannot be null") })()
 
-const brackets: HTMLElement[] = [bracket10, bracket12, bracket22, bracket24, bracket32, bracket35, bracket37]
+const ctx = (taxChart as HTMLCanvasElement).getContext("2d")
 
 enum FilingType {
     SINGLE,
@@ -281,7 +275,6 @@ function updateCalculations(): void {
             bracketTax = bracketInfo[taxStore.filingType].details[i].taxes
         }
         taxStore.brackets[i] = bracketTax
-        brackets[i].textContent = formatCurrency(bracketTax)
         taxStore.totalTaxes += bracketTax
     }
     taxStore.standardDeduction = bracketInfo[taxStore.filingType].standardDeduction
@@ -289,6 +282,144 @@ function updateCalculations(): void {
     standardDeduction.textContent = formatCurrency(taxStore.standardDeduction)
     taxableIncome.textContent = formatCurrency(taxStore.taxableIncome)
     totalTaxes.textContent = formatCurrency(taxStore.totalTaxes)
+    drawBarChart()
+}
+
+function drawBarChart() {
+    if (!ctx) throw new Error("could not found canvas context")
+    const canvas = taxChart as HTMLCanvasElement;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    const brackets = taxStore.brackets;
+    const bracketLabels = ["10%", "12%", "22%", "24%", "32%", "35%", "37%"];
+    const colors = [
+        "#4CAF50", "#2196F3", "#FF9800", "#F44336",
+        "#9C27B0", "#607D8B", "#795548"
+    ];
+
+    const padding = 40
+    const bottomPadding = 100
+    const leftPadding = 100
+    const chartWidth = canvas.width - leftPadding - padding
+    const chartHeight = canvas.height - padding - bottomPadding
+    const barWidth = chartWidth / brackets.length
+
+    // Find max value for scaling
+    const maxValue = Math.max(...brackets, 1)
+
+    // Draw bars
+    brackets.forEach((value, index) => {
+        const barHeight = (value / maxValue) * chartHeight
+        const x = leftPadding + index * barWidth + barWidth * 0.1
+        const y = canvas.height - bottomPadding - barHeight
+        const width = barWidth * 0.8
+
+        ctx.fillStyle = colors[index]
+        ctx.fillRect(x, y, width, barHeight)
+
+        if (value > 0) {
+            ctx.save()
+            ctx.font = "12px Roboto"
+            ctx.textAlign = "center"
+            ctx.translate(x + width / 2, y - 5)
+            ctx.rotate(-Math.PI / 6)
+
+            const text = formatCurrency(value)
+            const textMetrics = ctx.measureText(text)
+            const textWidth = textMetrics.width
+            const textHeight = 12
+            const padding = 4
+
+            // Draw background box
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)"
+            ctx.fillRect(
+                -textWidth / 2 - padding,
+                -textHeight / 2 - padding,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+            )
+
+            // Draw border
+            ctx.strokeStyle = "#ccc"
+            ctx.lineWidth = 1
+            ctx.strokeRect(
+                -textWidth / 2 - padding,
+                -textHeight / 2 - padding,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+            )
+
+            // Draw text
+            ctx.fillStyle = "#333"
+            ctx.fillText(text, 0, 4) // Slight vertical adjustment for centering
+            ctx.restore()
+        }
+
+        // Draw bracket label
+        ctx.fillStyle = "#333"
+        ctx.font = "14px Roboto"
+        ctx.textAlign = "center"
+        ctx.fillText(
+            bracketLabels[index],
+            x + width / 2,
+            canvas.height - bottomPadding + 20
+        )
+    })
+
+    // Draw axes
+    ctx.strokeStyle = "#333"
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    // Y-axis
+    ctx.moveTo(leftPadding, padding)
+    ctx.lineTo(leftPadding, canvas.height - bottomPadding)
+    // X-axis
+    ctx.lineTo(canvas.width - padding, canvas.height - bottomPadding)
+    ctx.stroke()
+
+    // Y-axis labels and grid lines
+    ctx.fillStyle = "#666"
+    ctx.font = "12px Roboto"
+    ctx.textAlign = "right"
+    for (let i = 0; i <= 5; i++) {
+        const value = (maxValue / 5) * i
+        const y = canvas.height - bottomPadding - (chartHeight / 5) * i
+        ctx.fillText(formatCurrency(value), leftPadding - 10, y + 4)
+
+        // Grid lines
+        if (i > 0) {
+            ctx.strokeStyle = "#eee"
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(leftPadding, y)
+            ctx.lineTo(canvas.width - padding, y)
+            ctx.stroke()
+            ctx.strokeStyle = "#333" // Reset for axes
+            ctx.lineWidth = 2
+        }
+    }
+
+    // Y-axis label
+    ctx.save()
+    ctx.translate(20, canvas.height / 2)
+    ctx.rotate(-Math.PI / 2)
+    ctx.fillStyle = "#333"
+    ctx.font = "16px Roboto"
+    ctx.textAlign = "center"
+    ctx.fillText("Tax Amount", 0, 0)
+    ctx.restore();
+
+    // X-axis label
+    ctx.fillStyle = "#333"
+    ctx.font = "16px Roboto"
+    ctx.textAlign = "center"
+    ctx.fillText(
+        "Tax Brackets",
+        leftPadding + chartWidth / 2,
+        canvas.height - 20
+    )
 }
 
 document.body.addEventListener("slider-change", (event: CustomEvent<CustomSliderEventDetail>) => {
@@ -317,7 +448,7 @@ radioButtons.forEach((button: Element) => {
             default:
                 taxStore.filingType = FilingType.SINGLE;
         }
-        console.log(taxStore.filingType)
+        // console.log(taxStore.filingType)
         updateCalculations()
         localStorage.setItem(taxStorageKey, JSON.stringify(taxStore))
         console.log(selectedFilingType)

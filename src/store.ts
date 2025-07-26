@@ -15,7 +15,15 @@ export type UnifiedStore = {
     loanTerm: number
 }
 
+
+export type StudentLoanStore = {
+    loanAmount: number
+    loanTerm: number
+    interestRate: number
+}
+
 const unifiedStorageKey = "unifiedStore"
+const studentLoanStorageKey = "studentLoanStore"
 
 export function formatCurrency(amount: number): string {
     return new Intl.NumberFormat("en-US", {
@@ -24,6 +32,26 @@ export function formatCurrency(amount: number): string {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(amount);
+}
+
+export function calculateMonthlyPayment(
+    loanAmount: number,
+    annualRate: number,
+    years: number,
+): number {
+    const monthlyRate: number = annualRate / 100 / 12
+    const numPayments: number = years * 12
+
+    if (monthlyRate === 0) {
+        return loanAmount / numPayments
+    }
+
+    let amortizedRate: number = 1
+    const monthlyRatePlus1 = 1 + monthlyRate
+    for (let i = 0; i < numPayments; ++i) {
+        amortizedRate *= monthlyRatePlus1
+    }
+    return (loanAmount * (monthlyRate * amortizedRate)) / (amortizedRate - 1)
 }
 
 function migrateLegacyStores(): Partial<UnifiedStore> | null {
@@ -118,6 +146,30 @@ function getDefaultStore(): UnifiedStore {
     }
 }
 
+export function initializeStudentLoanStore(): StudentLoanStore {
+    const existingStorage = localStorage.getItem(studentLoanStorageKey)
+
+    if (existingStorage) {
+        try {
+            return JSON.parse(existingStorage)
+        } catch (e) {
+            console.error("Failed to parse unified store, using defaults:", e)
+        }
+    }
+
+    const defaultStore = getDefaultStudentLoanStore()
+    localStorage.setItem(studentLoanStorageKey, JSON.stringify(defaultStore))
+    return defaultStore
+}
+
+function getDefaultStudentLoanStore(): StudentLoanStore {
+    return {
+        loanAmount: 40000,
+        loanTerm: 10,
+        interestRate: 6.5,
+    }
+}
+
 export function saveStore(store: UnifiedStore): void {
     localStorage.setItem(unifiedStorageKey, JSON.stringify(store))
 }
@@ -127,4 +179,15 @@ export let unifiedStore: UnifiedStore = initializeStore()
 export function updateStore(updates: Partial<UnifiedStore>): void {
     unifiedStore = { ...unifiedStore, ...updates }
     saveStore(unifiedStore)
+}
+
+export function saveStudentLoanStore(store: StudentLoanStore): void {
+    localStorage.setItem(studentLoanStorageKey, JSON.stringify(store))
+}
+
+export let studentLoanStore: StudentLoanStore = initializeStudentLoanStore()
+
+export function updateStudentLoanStore(updates: Partial<StudentLoanStore>): void {
+    studentLoanStore = { ...studentLoanStore, ...updates }
+    saveStudentLoanStore(studentLoanStore)
 }

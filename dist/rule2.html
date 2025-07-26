@@ -43,9 +43,15 @@
     <header class="main-header">
         <div class="header-content">
             <div class="app-name dancing-script-1">Simple Calc</div>
+            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <nav class="header-nav">
                 <a href="./" class="nav-link">Age</a>
                 <a href="./rule1.html" class="nav-link">Mortgage</a>
+                <a href="./student.html" class="nav-link">Student Loans</a>
                 <a href="./tax.html" class="nav-link">Tax</a>
             </nav>
         </div>
@@ -94,6 +100,10 @@
                 <span class="result-value" id="monthlyPayment">$1,775</span>
             </div>
             <div class="result-item">
+                <span class="result-label">Total Cost (Home Price + Interest):</span>
+                <span class="result-value" id="totalCost">$639,000</span>
+            </div>
+            <div class="result-item">
                 <span class="result-label">Interest Rate:</span>
                 <span class="result-value" id="displayRate">6.5%</span>
             </div>
@@ -111,6 +121,7 @@
             </div>
         </div>
     </div>
+    <script src="common.js"></script>
     <script src="store.js" type="module"></script>
     <script src="rule2.js" type="module"></script>
 </body>

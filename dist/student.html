@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Loans Calculator</title>
+    <meta name="description" content="Calculate how much you for your student loans.">
+    <meta name="keywords"
+        content="student loans calculator, student loans, loan amount, monthly payment, interest rate, financial planning">
+    <meta property="og:title" content="Student Loans Calculator - Simple Calc">
+    <meta property="og:description" content="Calculate how much you owe for your student loans.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://calc.hearteyesemoji.dev/student.html">
+    <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
+
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="components.js" type="module"></script>
+    <link rel="icon" href="simplecalc.ico" />
+    <script defer data-domain="calc.hearteyesemoji.dev"
+        src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="app-name dancing-script-1">Simple Calc</div>
+            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="header-nav">
+                <a href="./" class="nav-link">Age</a>
+                <a href="./rule1.html" class="nav-link">Mortgage</a>
+                <a href="./student.html" class="nav-link">Student Loans</a>
+                <a href="./tax.html" class="nav-link">Tax</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Student Loan Calculator</h1>
+
+        <custom-slider id="loanAmount" label="Total Loan Amount" min="5000" max="200000" value="40000" step="1000"
+            unit="$">
+        </custom-slider>
+
+        <custom-slider id="interestRate" label="Average Interest Rate (%)" min="3" max="18" value="6.5" step="0.1"
+            unit="%">
+        </custom-slider>
+
+        <custom-slider id="loanTerm" label="Payoff years" min="1" max="20" value="10" step="1" unit="yrs">
+        </custom-slider>
+
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">Interest Accrued:</span>
+                <span class="result-value" id="interestAccrued">$14,503</span>
+            </div>
+            <div class="result-item main-result">
+                <span class="result-label">Monthly Payment Required:</span>
+                <span class="result-value" id="monthlyPayment">$454</span>
+            </div>
+        </div>
+    </div>
+    <script src="common.js"></script>
+    <script src="store.js" type="module"></script>
+    <script src="student.js" type="module"></script>
+</body>
+
+</html>

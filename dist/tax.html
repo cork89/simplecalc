@@ -33,9 +33,15 @@
     <header class="main-header">
         <div class="header-content">
             <div class="app-name dancing-script-1">Simple Calc</div>
+            <button class="mobile-menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <nav class="header-nav">
                 <a href="./" class="nav-link">Age</a>
                 <a href="./rule1.html" class="nav-link">Mortgage</a>
+                <a href="./student.html" class="nav-link">Student Loans</a>
                 <a href="./tax.html" class="nav-link">Tax</a>
             </nav>
         </div>
@@ -72,7 +78,7 @@
                 <span class="result-label">Taxable Income:</span>
                 <span class="result-value" id="taxableIncome">$59,250</span>
             </div>
-            <div class="result-item">
+            <!-- <div class="result-item">
                 <span class="result-label">10% Bracket:</span>
                 <span class="result-value" id="bracket10">$1,192.50</span>
             </div>
@@ -99,15 +105,43 @@
             <div class="result-item">
                 <span class="result-label">37% Bracket:</span>
                 <span class="result-value" id="bracket37">$0</span>
+            </div> -->
+            <div class="chart-container">
+                <div class="chart-title">Taxes by Bracket</div>
+                <canvas id="taxChart" width="500" height="400"></canvas>
             </div>
             <div class="result-item main-result">
                 <span class="result-label">Total Taxes Owed:</span>
                 <span class="result-value" id="totalTaxes">$7948.78</span>
             </div>
         </div>
+        <style>
+            .chart-container {
+                margin: 20px 0;
+                text-align: center;
+            }
+
+            #taxChart {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                max-width: 100%;
+                height: auto;
+            }
+
+            .chart-title {
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+        </style>
+        <!-- <div class="chart-container">
+            <div class="chart-title">Tax by Bracket</div>
+            <canvas id="taxChart" width="500" height="400"></canvas>
+        </div> -->
 
     </div>
-
+    <script src="common.js"></script>
     <script src="tax.js" type="module"></script>
 </body>
 

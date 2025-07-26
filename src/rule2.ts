@@ -1,5 +1,5 @@
 import { CustomSliderEventDetail } from "./global"
-import { unifiedStore, updateStore, formatCurrency } from "./store.js"
+import { unifiedStore, updateStore, calculateMonthlyPayment, formatCurrency } from "./store.js"
 
 const displayHomePrice: HTMLElement = document.getElementById("displayHomePrice") ?? (() => { throw new Error("displayHomePrice cannot be null") })()
 const monthlyPayment: HTMLElement = document.getElementById("monthlyPayment") ?? (() => { throw new Error("monthlyPayment cannot be null") })()
@@ -8,26 +8,9 @@ const requiredIncome: HTMLElement = document.getElementById("requiredIncome") ??
 const downPaymentAmount: HTMLElement = document.getElementById("downPaymentAmount") ?? (() => { throw new Error("downPaymentAmount cannot be null") })()
 const repairFundAmount: HTMLElement = document.getElementById("repairFundAmount") ?? (() => { throw new Error("repairFundAmount cannot be null") })()
 const totalCashNeeded: HTMLElement = document.getElementById("totalCashNeeded") ?? (() => { throw new Error("totalCashNeeded cannot be null") })()
+const totalCost: HTMLElement = document.getElementById("totalCost") ?? (() => { throw new Error("totalCost cannot be null") })()
 
-function calculateMonthlyPayment(
-    loanAmount: number,
-    annualRate: number,
-    years: number,
-): number {
-    const monthlyRate: number = annualRate / 100 / 12
-    const numPayments: number = years * 12
 
-    if (monthlyRate === 0) {
-        return loanAmount / numPayments
-    }
-
-    let amortizedRate: number = 1
-    const monthlyRatePlus1 = 1 + monthlyRate
-    for (let i = 0; i < numPayments; ++i) {
-        amortizedRate *= monthlyRatePlus1
-    }
-    return (loanAmount * (monthlyRate * amortizedRate)) / (amortizedRate - 1)
-}
 
 function updateHomePriceCalculations(): void {
     displayHomePrice.textContent = formatCurrency(unifiedStore.homePrice)
@@ -40,6 +23,7 @@ function updateHomePriceCalculations(): void {
     const requiredAnnualIncome: number = monthlyPmt * 3 * 12
 
     monthlyPayment.textContent = formatCurrency(monthlyPmt)
+    totalCost.textContent = formatCurrency(monthlyPmt * 12 * unifiedStore.loanTerm + unifiedStore.downPayment)
     requiredIncome.textContent = formatCurrency(requiredAnnualIncome)
     downPaymentAmount.textContent = formatCurrency(unifiedStore.downPayment)
     repairFundAmount.textContent = formatCurrency(unifiedStore.repairFund)
@@ -49,8 +33,6 @@ function updateHomePriceCalculations(): void {
 
 function updateInterestCalculations(): void {
     interestDisplayRate.textContent = unifiedStore.interestRate + "%"
-    const monthlyPmt: number = calculateMonthlyPayment(unifiedStore.loanAmount, unifiedStore.interestRate, unifiedStore.loanTerm ?? 30)
-    monthlyPayment.textContent = formatCurrency(monthlyPmt)
 }
 
 document.body.addEventListener("slider-change", (event: CustomEvent<CustomSliderEventDetail>) => {
@@ -69,6 +51,7 @@ loanTermRadioButtons.forEach((button: Element) => {
         const target = event.target as HTMLInputElement
         unifiedStore.loanTerm = parseInt(target.value)
         updateHomePriceCalculations()
+        updateInterestCalculations()
     })
 })
 
