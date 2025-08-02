@@ -3,6 +3,7 @@ import { CustomSliderEventDetail } from "./global"
 class CustomSlider extends HTMLElement {
     private slider!: HTMLInputElement
     private valueDisplay!: HTMLDivElement
+    private marksContainer!: HTMLDivElement
     shadowRoot!: ShadowRoot
 
     constructor() {
@@ -13,7 +14,7 @@ class CustomSlider extends HTMLElement {
     }
 
     static get observedAttributes(): string[] {
-        return ["min", "max", "value", "step", "label", "unit"];
+        return ["min", "max", "value", "step", "label", "unit", "mark-interval", "mark-label-interval"];
     }
 
     connectedCallback(): void {
@@ -21,9 +22,11 @@ class CustomSlider extends HTMLElement {
 
         this.slider = this.shadowRoot.querySelector("input[type='range']",) as HTMLInputElement;
         this.valueDisplay = this.shadowRoot.querySelector(".value-display",) as HTMLDivElement;
+        this.marksContainer = this.shadowRoot.querySelector(".marks-container") as HTMLDivElement
 
         this.slider.addEventListener("input", this._handleSliderInput.bind(this));
         this._updateDisplay();
+        this._createMarks()
     }
 
     attributeChangedCallback(
@@ -40,6 +43,8 @@ class CustomSlider extends HTMLElement {
                 this._updateDisplay();
             } else if (name === "unit") {
                 this._updateDisplay();
+            } else if (["mark-interval", "mark-label-interval"].includes(name)) {
+                this._createMarks();
             }
         }
     }
@@ -77,6 +82,45 @@ class CustomSlider extends HTMLElement {
         this.valueDisplay.textContent = formattedValue;
     }
 
+    private _createMarks(): void {
+        if (!this.marksContainer) return;
+
+        // Clear existing marks
+        this.marksContainer.innerHTML = "";
+
+        const markInterval = this.getAttribute("mark-interval");
+        const markLabelInterval = this.getAttribute("mark-label-interval");
+
+        // Only show marks if both attributes are present
+        if (!markInterval || !markLabelInterval) return;
+
+        const min = Number(this.getAttribute("min") || "0");
+        const max = Number(this.getAttribute("max") || "100");
+        const interval = Number(markInterval);
+        const labelInterval = Number(markLabelInterval);
+
+        const totalRange = max - min;
+
+        for (let value = min; value <= max; value += interval) {
+            const position = ((value - min) / totalRange) * 100;
+
+            // Create the mark line
+            const mark = document.createElement("div");
+            mark.className = "mark";
+            mark.style.left = position + "%";
+            this.marksContainer.appendChild(mark);
+
+            // Create the label if it's a label interval
+            if (value % labelInterval === 0) {
+                const label = document.createElement("div");
+                label.className = "mark-label";
+                label.style.left = position + "%";
+                label.textContent = `${value}`;
+                this.marksContainer.appendChild(label);
+            }
+        }
+    }
+
     private render(): void {
         const label = this.getAttribute("label") || "Slider";
         const min = this.getAttribute("min") || "0";
@@ -103,6 +147,26 @@ class CustomSlider extends HTMLElement {
         .slider-container {
             position: relative;
             margin-bottom: var(--spacing-md);
+        }
+        .marks-container {
+            position: relative;
+            height: var(--slider-marks-height);
+            margin-bottom: var(--spacing-xs);
+        }
+        .mark {
+            position: absolute;
+            width: var(--slider-mark-width);
+            height: var(--slider-mark-height);
+            background-color: var(--border-light);
+            top: 0;
+        }
+        .mark-label {
+            position: absolute;
+            font-size: var(--font-size-sm);
+            color: var(--text-muted-readable);
+            top: var(--spacing-md);
+            transform: translateX(-50%);
+            white-space: nowrap;
         }
         input[type="range"] {
             width: 100%;
@@ -160,7 +224,10 @@ class CustomSlider extends HTMLElement {
       <div class="input-group">
           <label for="${id}">${label}</label>
           <div class="slider-container">
-              <input type="range" id="${id}" min="${min}" max="${max}" value="${initialValue}" step="${step}" />
+              <div class="slider-wrapper">
+                  <div class="marks-container"></div>
+                  <input type="range" id="${id}" min="${min}" max="${max}" value="${initialValue}" step="${step}" />
+              </div>
           </div>
           <div class="value-display"></div>
       </div>
@@ -232,6 +299,18 @@ class SimpleHeader extends HTMLElement {
                     font-size: var(--font-size-xl);
                     font-weight: var(--font-weight-bold);
                     color: var(--card-background);
+                }
+
+                .app-name a:link {
+                    text-decoration: inherit;
+                    color: inherit;
+                    cursor: pointer;
+                }
+
+                .app-name a:visited {
+                    text-decoration: inherit;
+                    color: inherit;
+                    cursor: pointer;
                 }
 
                 .mobile-menu-toggle {
@@ -315,14 +394,14 @@ class SimpleHeader extends HTMLElement {
             </style>
             <header class="main-header">
                 <div class="header-content">
-                    <div class="app-name dancing-script-1">Simple Calc</div>
+                    <div class="app-name dancing-script-1"><a href="./">Simple Calc</a></div>
                     <button class="mobile-menu-toggle" aria-label="Toggle navigation">
                         <span></span>
                         <span></span>
                         <span></span>
                     </button>
                     <nav class="header-nav">
-                        <a href="./" class="nav-link">Age</a>
+                        <a href="./age.html" class="nav-link">Age</a>
                         <a href="./rule1.html" class="nav-link">Mortgage</a>
                         <a href="./student.html" class="nav-link">Student Loans</a>
                         <a href="./tax.html" class="nav-link">Tax</a>

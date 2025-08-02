@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calc</title>
-    <meta name="description" content="Simple Calc. simple calculators for your everyday questions.">
+    <title>Age Calculator</title>
+    <meta name="description" content="Simple Age Calculator. Find out your age in any given year instantly.">
     <meta name="keywords"
-        content="age calculator, simple calc, calculate age, mortgage calculator, tax calculator, student loans, student loan calculator">
-    <meta name="author" content="cork89">
-    <meta property="og:title" content="Simple Calc - approximately, everything you need">
-    <meta property="og:description" content="Easily calculate your age, taxes, loans, and mortgages.">
+        content="age calculator, simple calc, calculate age, age in any year, birth year, current age, online age calculator">
+    <meta name="author" content="Your Name or Company Name">
+    <meta property="og:title" content="Age Calculator - Find Your Age in Any Year">
+    <meta property="og:description"
+        content="Easily calculate your age for any year with our simple and intuitive age calculator.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://calc.hearteyesemoji.dev/">
     <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
@@ -29,15 +30,18 @@
 <body>
     <simple-header></simple-header>
     <div class="container">
-        <h1>Simple Calculators</h1>
-        <h3>approximately, everything you need</h3>
-        <div class="toggle-rule">
-            <a href="age.html"><button class="toggle-button">Age</button></a>
-            <a href="rule2.html"><button class="toggle-button">Mortgage</button></a>
-            <a href="student.html"><button class="toggle-button">Student Loans</button></a>
-            <a href="tax.html"><button class="toggle-button">Tax</button></a>
+        <h1>Age Calculator</h1>
+        <simple-slider id="ageSlider" label="Enter your current age:" min="0" max="120" value="25"
+            step="1"></simple-slider>
+        <simple-slider id="yearSlider" label="Select a year:" min="1900" max="2100" value="2025" step="1"
+            mark-interval="10" mark-label-interval="20"></simple-slider>
+
+        <div class="result" id="result">
+            Age in 2025: ~25 years old
         </div>
     </div>
+    <script src="store.js" type="module"></script>
+    <script src="age.js" type="module"></script>
 </body>
 
 </html>
