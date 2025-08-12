@@ -1,4 +1,6 @@
 import { CustomSliderEventDetail } from "./global"
+import { formatCurrency } from "./store.js"
+
 
 const radioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="fileType"]')
 const standardDeduction: HTMLElement = document.getElementById("standardDeduction") ?? (() => { throw new Error("standardDeduction cannot be null") })()
@@ -256,14 +258,14 @@ if (taxLocationStorage) {
     }
 }
 
-function formatCurrency(amount: number): string {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(amount);
-}
+// function formatCurrency(amount: number): string {
+//     return new Intl.NumberFormat("en-US", {
+//         style: "currency",
+//         currency: "USD",
+//         minimumFractionDigits: 2,
+//         maximumFractionDigits: 2,
+//     }).format(amount);
+// }
 
 function updateCalculations(): void {
     taxStore.totalTaxes = 0

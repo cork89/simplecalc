@@ -405,6 +405,7 @@ class SimpleHeader extends HTMLElement {
                         <a href="./rule1.html" class="nav-link">Mortgage</a>
                         <a href="./student.html" class="nav-link">Student Loans</a>
                         <a href="./tax.html" class="nav-link">Tax</a>
+                        <a href="./retirement.html" class="nav-link">Retirement</a>
                     </nav>
                 </div>
             </header>

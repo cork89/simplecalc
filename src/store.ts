@@ -26,9 +26,17 @@ export type AgeStore = {
     year: number
 }
 
+export type RetirementStore = {
+    age: number
+    nestEgg: number
+    returnRate: number
+    budget: number
+}
+
 const unifiedStorageKey = "unifiedStore"
 const studentLoanStorageKey = "studentLoanStore"
 export const ageStorageKey = "ageStore"
+export const retirementStorageKey = "retirementStore"
 
 export function formatCurrency(amount: number): string {
     return new Intl.NumberFormat("en-US", {
@@ -151,7 +159,7 @@ function getDefaultStore(): UnifiedStore {
     }
 }
 
-export function initializeStoreX(getDefaultStore: () => StudentLoanStore | AgeStore, storageKey: string): StudentLoanStore | AgeStore {
+export function initializeStoreX(getDefaultStore: () => StudentLoanStore | AgeStore | RetirementStore, storageKey: string): StudentLoanStore | AgeStore | RetirementStore {
     const existingStorage = localStorage.getItem(storageKey)
 
     if (existingStorage) {
@@ -183,7 +191,16 @@ function getDefaultAgeStore(): AgeStore {
     }
 }
 
-export function saveStore(store: UnifiedStore | StudentLoanStore | AgeStore, storageKey: string): void {
+function getDefaultRetirementStore(): RetirementStore {
+    return {
+        age: 50,
+        nestEgg: 1000000,
+        returnRate: 8,
+        budget: 3000,
+    }
+}
+
+export function saveStore(store: UnifiedStore | StudentLoanStore | AgeStore | RetirementStore, storageKey: string): void {
     localStorage.setItem(storageKey, JSON.stringify(store))
 }
 
@@ -202,3 +219,5 @@ export function updateStudentLoanStore(updates: Partial<StudentLoanStore>): void
 }
 
 export let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as AgeStore
+
+export let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStore, retirementStorageKey) as RetirementStore

@@ -16,6 +16,7 @@
     <meta property="og:url" content="https://calc.hearteyesemoji.dev/">
     <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -29,8 +30,12 @@
 
 <body>
     <simple-header></simple-header>
+
     <div class="container">
         <h1>Age Calculator</h1>
+        <h2 class="rule-description">
+            This calculator estimates your age in any given year.
+        </h2>
         <simple-slider id="ageSlider" label="Enter your current age:" min="0" max="120" value="25"
             step="1"></simple-slider>
         <simple-slider id="yearSlider" label="Select a year:" min="1900" max="2100" value="2025" step="1"

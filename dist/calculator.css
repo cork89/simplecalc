@@ -69,3 +69,15 @@
     flex-wrap: wrap;
     accent-color: var(--primary-background);
 }
+
+.chart-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.chart-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
