@@ -35,14 +35,18 @@ if (retirementLocationStorage) {
     }
 }
 
-
 type Point = { age: number; money: number }
 
-function calc(money: number): number {
-    let next = money
+// 2.31% annual inflation rate
+const inflationRate = 0.0231 / 4;
+
+function calc(money: number, year: number): number {
+    let next = money;
+    const inflationMultiplier = Math.pow(1 + inflationRate, year * 4);
+    const adjustedWithdrawalPerQuarter = withdrawalPerQuarter * inflationMultiplier;
 
     for (let i = 0; i < 4; ++i) {
-        next = next * (1 + quarterlyRate) - withdrawalPerQuarter
+        next = next * (1 + quarterlyRate) - adjustedWithdrawalPerQuarter;
     }
 
     if (next < 0) next = 0;
@@ -141,7 +145,7 @@ function simulate(
     );
 
     for (let i = 0; i < nSteps; i++) {
-        const next = calcFn(money);
+        const next = calcFn(money, i);
         age = age + 1
         money = next
         series.push({ age, money });
@@ -203,8 +207,6 @@ function drawGridAndAxes(): void {
     const { x, y, plotW, plotH } = scales();
     const xTicks = niceTicks(state.xMin, state.xMax, 8);
     const yTicks = niceTicks(state.yMin, state.yMax, 6);
-    console.log(state)
-    console.log(margin)
     // Grid
     ctx.save();
     ctx.strokeStyle =
@@ -213,7 +215,6 @@ function drawGridAndAxes(): void {
 
     // Vertical grid
     xTicks.values.forEach((t) => {
-        console.log(t)
         const px = x(t);
         ctx?.beginPath();
         ctx?.moveTo(px, margin.top);
