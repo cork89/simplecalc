@@ -132,7 +132,7 @@ function simulate(
     startAge: number,
     endAge: number,
     startMoney: number,
-    calcFn: (money: number) => number
+    calcFn: (money: number, year: number) => number
 ): Point[] {
     const series: Point[] = [];
     let age: number = startAge;
