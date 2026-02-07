@@ -4,14 +4,38 @@ const age: HTMLElement = document.getElementById("age") ?? (() => { throw new Er
 const nestEgg: HTMLElement = document.getElementById("nestEgg") ?? (() => { throw new Error("nestEgg cannot be null") })()
 const returnRate: HTMLElement = document.getElementById("returnRate") ?? (() => { throw new Error("returnRate cannot be null") })()
 const budget: HTMLElement = document.getElementById("budget") ?? (() => { throw new Error("budget cannot be null") })()
-const retirementChart = document.getElementById("retirementChart") ?? (() => { throw new Error("retirementChart cannot be null") })()
+const retirementChart: HTMLCanvasElement = document.getElementById("retirementChart") as HTMLCanvasElement ?? (() => { throw new Error("retirementChart cannot be null") })()
 const tip = document.getElementById("tip") ?? (() => { throw new Error("tip cannot be null") })()
 
 let quarterlyRate: number = 1
 let withdrawalPerQuarter: number = 1
 
-const ctx = (retirementChart as HTMLCanvasElement).getContext("2d", { alpha: true })
+function setupCanvasForDPR1(canvas: HTMLCanvasElement) {
+    // 1. Get the computed CSS dimensions
+    const rect = canvas.getBoundingClientRect(); // Gives CSS pixels
 
+    // 2. Set the canvas's internal drawing buffer dimensions to match its CSS dimensions
+    // This effectively forces a 1:1 relationship between CSS pixels and drawing pixels
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // 3. Get the 2D rendering context
+    const ctx = canvas.getContext('2d');
+
+    // 4. (Optional but good practice) Reset any existing transformations
+    // This ensures that 1 unit in drawing operations equals 1 CSS pixel
+    ctx?.setTransform(1, 0, 0, 1, 0, 0); // Identity matrix: scaleX=1, skewX=0, skewY=0, scaleY=1, translateX=0, translateY=0
+
+    console.log(`Canvas CSS Width: ${rect.width}px, Height: ${rect.height}px`);
+    console.log(`Canvas Internal Width: ${canvas.width}px, Height: ${canvas.height}px`);
+    console.log(`Device Pixel Ratio: ${window.devicePixelRatio}`);
+    console.log(`Effective Drawing DPR (target): 1`);
+
+    return ctx;
+}
+
+const ctx = setupCanvasForDPR1(retirementChart)
+//retirementChart.getContext("2d", { alpha: true }
 
 type RetirementStore = {
     age: number
@@ -55,7 +79,7 @@ function calc(money: number, year: number): number {
 
 // ===================================================
 
-const margin = { top: 24, right: 24, bottom: 48, left: 90 };
+let margin = { top: 24, right: 24, bottom: 48, left: 90 };
 
 const state: { series: Point[]; xMin: number; xMax: number; yMin: number; yMax: number } = {
     series: [],
@@ -162,8 +186,13 @@ function scales(): {
     plotW: number;
     plotH: number;
 } {
-    const plotW = retirementChart.clientWidth - margin.left - margin.right;
-    const plotH = retirementChart.clientHeight - margin.top - margin.bottom;
+    // const plotW = retirementChart.clientWidth - margin.left - margin.right;
+    // const plotH = retirementChart.clientHeight - margin.top - margin.bottom;
+    const plotW = retirementChart.width - margin.left - margin.right;
+    const plotH = retirementChart.height - margin.top - margin.bottom;
+
+
+    console.log(retirementChart.clientWidth, retirementChart.clientHeight)
 
     const xMin = state.xMin;
     const xMax = state.xMax;
@@ -186,12 +215,18 @@ function scales(): {
         return yMin + (1 - t) * (yMax - yMin);
     };
 
-    return { x, y, invX, invY, plotW, plotH };
+    let test = { x, y, invX, invY, plotW, plotH }
+    console.log(test)
+    return test;
 }
 
 function draw(hoverPoint: Point | null = null): void {
-    const w = retirementChart.clientWidth;
-    const h = retirementChart.clientHeight;
+    updateMargins();
+    // const w = retirementChart.clientWidth;
+    // const h = retirementChart.clientHeight;
+    const w = retirementChart.width;
+    const h = retirementChart.height;
+
     ctx?.clearRect(0, 0, w, h);
 
     drawGridAndAxes();
@@ -200,6 +235,37 @@ function draw(hoverPoint: Point | null = null): void {
     if (hoverPoint) {
         drawHover(hoverPoint);
     }
+}
+
+function updateMargins(): void {
+    const w = retirementChart.clientWidth || 0;
+
+    // Base margins by breakpoint
+    const top = w <= 360 ? 12 : w <= 480 ? 16 : w <= 768 ? 20 : 24;
+    const right = w <= 480 ? 12 : 24;
+    const bottom = w <= 480 ? 32 : 48;
+
+    // Compute left margin large enough to fit y-axis labels
+    // using current y-range (state) and current font size.
+    const yTicks = niceTicks(state.yMin, state.yMax, 6);
+    const fontPx = w <= 480 ? 11 : 12;
+
+    let left = w <= 480 ? 64 : 90; // fallback if no ctx
+    if (ctx) {
+        ctx.save();
+        ctx.font = `${fontPx}px system-ui, sans-serif`;
+        const maxLabelWidth = Math.max(
+            0,
+            ...yTicks.values.map((t) => ctx.measureText(formatCurrency(t)).width)
+        );
+        ctx.restore();
+
+        const pad = 16; // space between labels and axis
+        const minLeft = w <= 480 ? 56 : 72; // never go below this
+        left = Math.max(minLeft, Math.ceil(maxLabelWidth) + pad);
+    }
+
+    margin = { top, right, bottom, left };
 }
 
 function drawGridAndAxes(): void {
@@ -420,6 +486,18 @@ function fmtNum(v: number, digits: number = 0): string {
     return Number(v).toFixed(digits);
 }
 
+function resizeCanvas(): void {
+    const dpr = window.devicePixelRatio || 1;
+    console.log(dpr)
+    const displayWidth = Math.floor(retirementChart.clientWidth * dpr);
+    const displayHeight = Math.floor(retirementChart.clientHeight * dpr);
+    console.log(displayWidth, displayHeight)
+    if (retirementChart.width !== displayWidth || retirementChart.height !== displayHeight) {
+        retirementChart.width = displayWidth;
+        retirementChart.height = displayHeight;
+    }
+}
+
 document.body.addEventListener("slider-change", (event: CustomEvent<CustomSliderEventDetail>) => {
     if (event.detail.id == "age") {
         retirementStore.age = parseInt(event.detail.value)
@@ -436,8 +514,6 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     simulateAndDraw()
 })
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
     age.setAttribute("value", `${retirementStore.age}`)
     nestEgg.setAttribute("value", `${retirementStore.nestEgg}`)
@@ -445,5 +521,11 @@ document.addEventListener("DOMContentLoaded", () => {
     budget.setAttribute("value", `${retirementStore.budget}`)
     quarterlyRate = retirementStore.returnRate / 100 / 4
     withdrawalPerQuarter = retirementStore.budget * 3
+    // resizeCanvas();
     simulateAndDraw()
 })
+
+new ResizeObserver(() => {
+    resizeCanvas();
+    simulateAndDraw();
+}).observe(retirementChart);
