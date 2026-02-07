@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Comparison Calculator</title>
+    <meta name="description"
+        content="Compare two mortgage scenarios side by side. See the difference in monthly payments, total cost, and required income.">
+    <meta name="keywords"
+        content="mortgage comparison, compare loans, mortgage calculator, housing affordability, loan comparison">
+    <meta property="og:title" content="Mortgage Comparison Calculator - Simple Calc">
+    <meta property="og:description"
+        content="Compare two mortgage scenarios side by side with our easy-to-use comparison tool.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://calc.hearteyesemoji.dev/compare.html">
+    <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
+
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="components.js" type="module"></script>
+    <link rel="icon" href="simplecalc.ico" />
+    <script defer data-domain="calc.hearteyesemoji.dev"
+        src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
+    <style>
+        .comparison-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        @media (max-width: 768px) {
+            .comparison-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scenario-card {
+            background: var(--primary-light);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius-lg);
+        }
+
+        .scenario-card h3 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+            text-align: center;
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .comparison-results {
+            background: var(--success-background);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius-lg);
+            margin-top: var(--spacing-xxxl);
+        }
+
+        .comparison-results h2 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+            color: var(--success-color);
+        }
+
+        .cost-breakdown {
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .cost-breakdown h4 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            text-align: center;
+        }
+
+        .stacked-bar-container {
+            width: 100%;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .stacked-bar {
+            display: flex;
+            width: 100%;
+            height: 32px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+
+        .bar-segment {
+            transition: width 0.3s ease;
+            min-width: 2px;
+        }
+
+        .bar-segment.principal {
+            background-color: var(--success-color);
+        }
+
+        .bar-segment.interest {
+            background-color: #ff9800;
+        }
+
+        .bar-segment.hoa {
+            background-color: #2196f3;
+        }
+
+        .bar-legend {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-color.principal {
+            background-color: var(--success-color);
+        }
+
+        .legend-color.interest {
+            background-color: #ff9800;
+        }
+
+        .legend-color.hoa {
+            background-color: #2196f3;
+        }
+
+        .legend-label {
+            color: var(--text-secondary);
+        }
+
+        .total-cost {
+            text-align: center;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-lg);
+            color: var(--text-primary);
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+    <simple-header></simple-header>
+    <div class="container">
+        <h1>Mortgage Comparison Calculator</h1>
+        <div class="toggle-rule">
+            <a href="rule2.html"><button class="toggle-button">
+                    Back to 30/30/3 Rule
+                </button></a>
+        </div>
+        <h2 class="rule-description">
+            <strong>Compare Two Scenarios:</strong><br />
+            <div style="text-align: left; margin-left: 2em;">
+                Adjust the sliders below to compare two different mortgage scenarios.<br />
+                See how home price, interest rate, and loan term affect your payments.
+            </div>
+        </h2>
+
+        <div class="comparison-layout">
+            <div class="scenario-card">
+                <h3>Scenario A</h3>
+                <simple-slider id="homePriceA" label="Home Price" min="100000" max="800000" value="300000" step="10000" unit="$">
+                </simple-slider>
+
+                <simple-slider id="interestRateA" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
+                </simple-slider>
+
+                <simple-slider id="hoaFeesA" label="HOA Fees" min="0" max="1000" value="0" step="20" unit="$">
+                </simple-slider>
+
+                <div class="input-group">
+                    <label>Loan Term</label>
+                    <div class="radio-selection">
+                        <label>
+                            <input type="radio" name="loanTermA" value="15"> 15 Years
+                        </label>
+                        <label>
+                            <input type="radio" name="loanTermA" value="30" checked> 30 Years
+                        </label>
+                    </div>
+                </div>
+
+                <div class="results" style="margin-top: var(--spacing-lg);">
+                    <div class="result-item">
+                        <span class="result-label">Monthly Payment:</span>
+                        <span class="result-value" id="monthlyPaymentA">$1,775</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Down Payment (20%):</span>
+                        <span class="result-value" id="downPaymentA">$60,000</span>
+                    </div>
+                </div>
+
+                <div class="cost-breakdown">
+                    <h4>Total Cost Breakdown</h4>
+                    <div class="stacked-bar-container">
+                        <div class="stacked-bar" id="stackedBarA">
+                            <div class="bar-segment principal" id="barPrincipalA"></div>
+                            <div class="bar-segment interest" id="barInterestA"></div>
+                            <div class="bar-segment hoa" id="barHoaA"></div>
+                        </div>
+                    </div>
+                    <div class="bar-legend">
+                        <div class="legend-item">
+                            <span class="legend-color principal"></span>
+                            <span class="legend-label">Principal: <span id="legendPrincipalA">$240,000</span></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color interest"></span>
+                            <span class="legend-label">Interest: <span id="legendInterestA">$278,000</span></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color hoa"></span>
+                            <span class="legend-label">HOA: <span id="legendHoaA">$0</span></span>
+                        </div>
+                    </div>
+                    <div class="total-cost">Total: <span id="totalCostA">$518,000</span></div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3>Scenario B</h3>
+                <simple-slider id="homePriceB" label="Home Price" min="100000" max="800000" value="350000" step="10000" unit="$">
+                </simple-slider>
+
+                <simple-slider id="interestRateB" label="Interest Rate (%)" min="3" max="8" value="5.5" step="0.1" unit="%">
+                </simple-slider>
+
+                <simple-slider id="hoaFeesB" label="HOA Fees" min="0" max="1000" value="0" step="20" unit="$">
+                </simple-slider>
+
+                <div class="input-group">
+                    <label>Loan Term</label>
+                    <div class="radio-selection">
+                        <label>
+                            <input type="radio" name="loanTermB" value="15"> 15 Years
+                        </label>
+                        <label>
+                            <input type="radio" name="loanTermB" value="30" checked> 30 Years
+                        </label>
+                    </div>
+                </div>
+
+                <div class="results" style="margin-top: var(--spacing-lg);">
+                    <div class="result-item">
+                        <span class="result-label">Monthly Payment:</span>
+                        <span class="result-value" id="monthlyPaymentB">$1,929</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Down Payment (20%):</span>
+                        <span class="result-value" id="downPaymentB">$70,000</span>
+                    </div>
+                </div>
+
+                <div class="cost-breakdown">
+                    <h4>Total Cost Breakdown</h4>
+                    <div class="stacked-bar-container">
+                        <div class="stacked-bar" id="stackedBarB">
+                            <div class="bar-segment principal" id="barPrincipalB"></div>
+                            <div class="bar-segment interest" id="barInterestB"></div>
+                            <div class="bar-segment hoa" id="barHoaB"></div>
+                        </div>
+                    </div>
+                    <div class="bar-legend">
+                        <div class="legend-item">
+                            <span class="legend-color principal"></span>
+                            <span class="legend-label">Principal: <span id="legendPrincipalB">$280,000</span></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color interest"></span>
+                            <span class="legend-label">Interest: <span id="legendInterestB">$289,000</span></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color hoa"></span>
+                            <span class="legend-label">HOA: <span id="legendHoaB">$0</span></span>
+                        </div>
+                    </div>
+                    <div class="total-cost">Total: <span id="totalCostB">$569,000</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-results">
+            <h2>Comparison Results</h2>
+            <div class="result-item">
+                <span class="result-label">Monthly Payment Difference:</span>
+                <span class="result-value" id="monthlyDifference">$154</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Cost Difference:</span>
+                <span class="result-value" id="totalDifference">$55,440</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Interest Paid Difference:</span>
+                <span class="result-value" id="interestDifference">$43,200</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Required Income Difference:</span>
+                <span class="result-value" id="incomeDifference">$6,160/year</span>
+            </div>
+            <div class="result-item main-result">
+                <span class="result-label">Winner:</span>
+                <span class="result-value" id="comparisonWinner">Scenario A</span>
+            </div>
+        </div>
+    </div>
+    <script src="store.js" type="module"></script>
+    <script src="compare.js" type="module"></script>
+</body>
+
+</html>
