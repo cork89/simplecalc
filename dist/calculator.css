@@ -45,6 +45,9 @@
     display: flex;
     justify-content: center;
     margin-bottom: var(--spacing-xl);
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    flex-direction: row;
 }
 
 .toggle-button {
@@ -61,6 +64,15 @@
 
 .toggle-button:hover {
     background: #45a049;
+}
+
+.toggle-button.is-active {
+    background: var(--primary-color);
+    cursor: default;
+}
+
+.toggle-button.is-active:hover {
+    background: var(--primary-color);
 }
 
 .radio-selection {

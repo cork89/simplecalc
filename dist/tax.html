@@ -36,6 +36,17 @@
         <h2 class="rule-description">
             This calculator estimates your federal income tax based on your annual income and filing status.
         </h2>
+        <div class="input-group">
+            <label>Tax Year</label>
+            <div class="radio-selection">
+                <label>
+                    <input type="radio" name="taxYear" value="2025" checked> 2025
+                </label>
+                <label>
+                    <input type="radio" name="taxYear" value="2026"> 2026
+                </label>
+            </div>
+        </div>
         <simple-slider id="grossIncome" label="Annual Income" min="30000" max="1000000" value="75000" step="5000"
             unit="$">
         </simple-slider>

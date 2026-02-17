@@ -2,7 +2,8 @@
     "name": "calculators",
     "version": "1.0.0",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
         "typescript": "^5.0.0"

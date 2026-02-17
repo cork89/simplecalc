@@ -12,6 +12,9 @@ SimpleCalc - A collection of web calculators (age, mortgage, tax, student loans,
 # Build TypeScript (compiles src/ to dist/)
 npm run build
 
+# Type check without emitting build artifacts
+npm run typecheck
+
 # Install dependencies
 npm ci
 ```

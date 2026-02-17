@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Loans vs 401k Comparison</title>
+    <meta name="description"
+        content="Compare paying student loans faster vs investing the same amount in a 401k with employer match.">
+    <meta name="keywords"
+        content="student loans, 401k, employer match, loan payoff, investing, comparison, net worth">
+    <meta property="og:title" content="Student Loans vs 401k Compare - Simple Calc">
+    <meta property="og:description"
+        content="See how your net worth changes when you pay student loans faster vs invest in a 401k with employer match.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://calc.hearteyesemoji.dev/student-compare.html">
+    <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
+
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="components.js" type="module"></script>
+    <link rel="icon" href="simplecalc.ico" />
+    <script defer data-domain="calc.hearteyesemoji.dev"
+        src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
+</head>
+
+<body>
+    <simple-header></simple-header>
+    <div class="container">
+        <h1>Repaying Loans vs Contributing to 401k Comparison</h1>
+        <div class="toggle-rule">
+            <a href="student.html"><button class="toggle-button">
+                    Student Loans
+                </button></a>
+            <a href="student-compare.html" aria-current="page"><button class="toggle-button is-active">
+                    Repay vs 401k
+                </button></a>
+        </div>
+        <h2 class="rule-description">
+            <strong>Student Loan Payoff vs Employer Match Growth:</strong><br />
+            <div style="text-align: left; margin-left: 2em;">
+                Left side is a student loan calculator. Right side estimates the employer match growth (your contribution + theirs).<br />
+                Assumes 8.4% annual returns and runs for the loan payoff period.
+            </div>
+        </h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); align-items: start;">
+            <div>
+                <h3>Student Loans</h3>
+                <simple-slider id="loanAmount" label="Total Loan Amount" min="5000" max="200000" value="40000"
+                    step="1000" unit="$">
+                </simple-slider>
+
+                <simple-slider id="interestRate" label="Average Interest Rate (%)" min="3" max="18" value="6.5"
+                    step="0.1" unit="%">
+                </simple-slider>
+            </div>
+
+            <div>
+                <h3>Total 401k Contributions</h3>
+                <simple-slider id="annualSalary" label="Annual Salary" min="30000" max="200000" value="70000" step="1000"
+                    unit="$">
+                </simple-slider>
+
+                <simple-slider id="employerMatchRate" label="% Contribution (where Employer Matches 100%)" min="0" max="10" value="4" step="0.1"
+                    unit="%">
+                </simple-slider>
+            </div>
+        </div>
+
+        <div style="margin-top: var(--spacing-lg);">
+            <simple-slider id="loanTerm" label="Payoff years" min="1" max="20" value="10" step="1" unit="yrs">
+            </simple-slider>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); align-items: start;">
+            <div class="results">
+                <div class="result-item">
+                    <span class="result-label">Interest Accrued:</span>
+                    <span class="result-value" id="interestAccrued">$14,503</span>
+                </div>
+                <div class="result-item main-result">
+                    <span class="result-label">Monthly Payment Required:</span>
+                    <span class="result-value" id="monthlyPayment">$454</span>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="result-item">
+                    <span class="result-label">Monthly Total Contribution:</span>
+                    <span class="result-value" id="monthlyMatchValue">$233</span>
+                </div>
+                <div class="result-item main-result">
+                    <span class="result-label">Contribution After <span id="payoffYearsLabel">10</span> Years:</span>
+                    <span class="result-value" id="employerMatchBalance">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" style="margin-top: var(--spacing-xl);">
+            <div class="result-item main-result">
+                <span class="result-label">Contributions - Interest Accrued:</span>
+                <span class="result-value" id="interestMinusMatch">$0</span>
+            </div>
+        </div>
+    </div>
+    <script src="store.js" type="module"></script>
+    <script src="student-compare.js" type="module"></script>
+</body>
+
+</html>

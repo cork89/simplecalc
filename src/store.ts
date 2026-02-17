@@ -21,6 +21,11 @@ export type StudentLoanStore = {
     interestRate: number
 }
 
+export type StudentCompareStore = {
+    annualSalary: number
+    employerMatchRate: number
+}
+
 export type AgeStore = {
     age: number
     year: number
@@ -35,6 +40,7 @@ export type RetirementStore = {
 
 const unifiedStorageKey = "unifiedStore"
 const studentLoanStorageKey = "studentLoanStore"
+const studentCompareStorageKey = "studentCompareStore"
 export const ageStorageKey = "ageStore"
 export const retirementStorageKey = "retirementStore"
 
@@ -159,12 +165,12 @@ function getDefaultStore(): UnifiedStore {
     }
 }
 
-export function initializeStoreX(getDefaultStore: () => StudentLoanStore | AgeStore | RetirementStore, storageKey: string): StudentLoanStore | AgeStore | RetirementStore {
+export function initializeStoreX<T>(getDefaultStore: () => T, storageKey: string): T {
     const existingStorage = localStorage.getItem(storageKey)
 
     if (existingStorage) {
         try {
-            return JSON.parse(existingStorage)
+            return JSON.parse(existingStorage) as T
         } catch (e) {
             console.error("Failed to parse unified store, using defaults:", e)
         }
@@ -184,6 +190,13 @@ function getDefaultStudentLoanStore(): StudentLoanStore {
     }
 }
 
+function getDefaultStudentCompareStore(): StudentCompareStore {
+    return {
+        annualSalary: 70000,
+        employerMatchRate: 4,
+    }
+}
+
 function getDefaultAgeStore(): AgeStore {
     return {
         age: 25,
@@ -200,7 +213,7 @@ function getDefaultRetirementStore(): RetirementStore {
     }
 }
 
-export function saveStore(store: UnifiedStore | StudentLoanStore | AgeStore | RetirementStore, storageKey: string): void {
+export function saveStore<T>(store: T, storageKey: string): void {
     localStorage.setItem(storageKey, JSON.stringify(store))
 }
 
@@ -216,6 +229,13 @@ export let studentLoanStore: StudentLoanStore = initializeStoreX(getDefaultStude
 export function updateStudentLoanStore(updates: Partial<StudentLoanStore>): void {
     studentLoanStore = { ...studentLoanStore, ...updates }
     saveStore(studentLoanStore, studentLoanStorageKey)
+}
+
+export let studentCompareStore: StudentCompareStore = initializeStoreX(getDefaultStudentCompareStore, studentCompareStorageKey) as StudentCompareStore
+
+export function updateStudentCompareStore(updates: Partial<StudentCompareStore>): void {
+    studentCompareStore = { ...studentCompareStore, ...updates }
+    saveStore(studentCompareStore, studentCompareStorageKey)
 }
 
 export let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as AgeStore

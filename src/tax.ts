@@ -3,6 +3,7 @@ import { formatCurrency } from "./store.js"
 
 
 const radioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="fileType"]')
+const yearButtons: NodeListOf<Element> = document.querySelectorAll('input[name="taxYear"]')
 const standardDeduction: HTMLElement = document.getElementById("standardDeduction") ?? (() => { throw new Error("standardDeduction cannot be null") })()
 const taxableIncome: HTMLElement = document.getElementById("taxableIncome") ?? (() => { throw new Error("taxableIncome cannot be null") })()
 const totalTaxes: HTMLElement = document.getElementById("totalTaxes") ?? (() => { throw new Error("totalTaxes cannot be null") })()
@@ -17,6 +18,11 @@ enum FilingType {
     MARRIEDSEP,
 }
 
+enum TaxYear {
+    YEAR_2025 = "2025",
+    YEAR_2026 = "2026",
+}
+
 type BracketDetail = {
     min: number,
     max: number,
@@ -29,9 +35,10 @@ type FilingTypeInfo = {
     details: BracketDetail[],
 }
 
-type BracketInfo = Record<FilingType, FilingTypeInfo>;
+type BracketInfo = Record<FilingType, FilingTypeInfo>
+type BracketInfoByYear = Record<TaxYear, BracketInfo>
 
-const bracketInfo: BracketInfo = {
+const bracketInfo2025: BracketInfo = {
     [FilingType.SINGLE]: {
         standardDeduction: 15750,
         details: [
@@ -223,6 +230,202 @@ const bracketInfo: BracketInfo = {
     },
 }
 
+const bracketInfo2026: BracketInfo = {
+    [FilingType.SINGLE]: {
+        standardDeduction: 16100,
+        details: [
+            {
+                min: 0,
+                max: 12400,
+                rate: 0.1,
+                taxes: 12400 * 0.1,
+            },
+            {
+                min: 12401,
+                max: 50400,
+                rate: 0.12,
+                taxes: (50400 - 12401) * 0.12,
+            },
+            {
+                min: 50401,
+                max: 105700,
+                rate: 0.22,
+                taxes: (105700 - 50401) * 0.22,
+            },
+            {
+                min: 105701,
+                max: 201775,
+                rate: 0.24,
+                taxes: (201775 - 105701) * 0.24
+            },
+            {
+                min: 201776,
+                max: 256225,
+                rate: 0.32,
+                taxes: (256225 - 201776) * 0.32,
+            },
+            {
+                min: 256226,
+                max: 640600,
+                rate: 0.35,
+                taxes: (640600 - 256226) * 0.35,
+            },
+            {
+                min: 640601,
+                max: 1000000,
+                rate: 0.37,
+                taxes: (1000000 - 640601) * 0.37,
+            }
+        ]
+    },
+    [FilingType.MARRIED]: {
+        standardDeduction: 32200,
+        details: [
+            {
+                min: 0,
+                max: 24800,
+                rate: 0.1,
+                taxes: (24800 - 0) * 0.1,
+            },
+            {
+                min: 24801,
+                max: 100800,
+                rate: 0.12,
+                taxes: (100800 - 24801) * 0.12,
+            },
+            {
+                min: 100801,
+                max: 211400,
+                rate: 0.22,
+                taxes: (211400 - 100801) * 0.22,
+            },
+            {
+                min: 211401,
+                max: 403550,
+                rate: 0.24,
+                taxes: (403550 - 211401) * 0.24,
+            },
+            {
+                min: 403551,
+                max: 512450,
+                rate: 0.32,
+                taxes: (512450 - 403551) * 0.32,
+            },
+            {
+                min: 512451,
+                max: 768700,
+                rate: 0.35,
+                taxes: (768700 - 512451) * 0.35,
+            },
+            {
+                min: 768701,
+                max: 1000000,
+                rate: 0.37,
+                taxes: (1000000 - 768701) * 0.37,
+            }
+        ]
+    },
+    [FilingType.HOH]: {
+        standardDeduction: 24150,
+        details: [
+            {
+                min: 0,
+                max: 17700,
+                rate: 0.1,
+                taxes: (17700 - 0) * 0.1,
+            },
+            {
+                min: 17701,
+                max: 67450,
+                rate: 0.12,
+                taxes: (67450 - 17701) * 0.12,
+            },
+            {
+                min: 67451,
+                max: 105700,
+                rate: 0.22,
+                taxes: (105700 - 67451) * 0.22,
+            },
+            {
+                min: 105701,
+                max: 201750,
+                rate: 0.24,
+                taxes: (201750 - 105701) * 0.24,
+            },
+            {
+                min: 201751,
+                max: 256200,
+                rate: 0.32,
+                taxes: (256200 - 201751) * 0.32,
+            },
+            {
+                min: 256201,
+                max: 640600,
+                rate: 0.35,
+                taxes: (640600 - 256201) * 0.35,
+            },
+            {
+                min: 640601,
+                max: 1000000,
+                rate: 0.37,
+                taxes: (1000000 - 640601) * 0.37,
+            }
+        ]
+    },
+    [FilingType.MARRIEDSEP]: {
+        standardDeduction: 16100,
+        details: [
+            {
+                min: 0,
+                max: 12400,
+                rate: 0.1,
+                taxes: (12400 - 0) * 0.1,
+            },
+            {
+                min: 12401,
+                max: 50400,
+                rate: 0.12,
+                taxes: (50400 - 12401) * 0.12,
+            },
+            {
+                min: 50401,
+                max: 105700,
+                rate: 0.22,
+                taxes: (105700 - 50401) * 0.22,
+            },
+            {
+                min: 105701,
+                max: 201775,
+                rate: 0.24,
+                taxes: (201775 - 105701) * 0.24,
+            },
+            {
+                min: 201776,
+                max: 256225,
+                rate: 0.32,
+                taxes: (256225 - 201776) * 0.32,
+            },
+            {
+                min: 256226,
+                max: 384350,
+                rate: 0.35,
+                taxes: (384350 - 256226) * 0.35,
+            },
+            {
+                min: 384351,
+                max: 1000000,
+                rate: 0.37,
+                taxes: (1000000 - 384351) * 0.37,
+            }
+        ]
+    },
+}
+
+const bracketInfoByYear: BracketInfoByYear = {
+    [TaxYear.YEAR_2025]: bracketInfo2025,
+    [TaxYear.YEAR_2026]: bracketInfo2026,
+}
+
 
 type TaxStore = {
     annualIncome: number
@@ -231,6 +434,7 @@ type TaxStore = {
     brackets: number[]
     totalTaxes: number
     filingType: FilingType
+    taxYear: TaxYear
 }
 
 
@@ -238,23 +442,40 @@ const taxStorageKey: string = "taxStore"
 const taxLocationStorage: string | null = localStorage.getItem(taxStorageKey)
 let taxStore: TaxStore
 if (taxLocationStorage) {
-    taxStore = JSON.parse(taxLocationStorage)
+    try {
+        taxStore = JSON.parse(taxLocationStorage)
+        if (!taxStore.taxYear) {
+            taxStore.taxYear = TaxYear.YEAR_2025
+        }
+    } catch (error) {
+        console.error("Failed to parse tax store from localStorage", error)
+        taxStore = {
+            annualIncome: 75000,
+            standardDeduction: 15750,
+            taxableIncome: 75000 - 15750,
+            brackets: new Array(7).fill(0),
+            totalTaxes: 7948.78,
+            filingType: FilingType.SINGLE,
+            taxYear: TaxYear.YEAR_2025,
+        }
+    }
 } else {
     taxStore = {
         annualIncome: 75000,
         standardDeduction: 15750,
         taxableIncome: 75000 - 15750,
         brackets: [
-            bracketInfo[FilingType.SINGLE].details[0].taxes,
-            bracketInfo[FilingType.SINGLE].details[1].taxes,
-            (75000 - 15750 - bracketInfo[FilingType.SINGLE].details[2].min) * bracketInfo[FilingType.SINGLE].details[2].rate,
+            bracketInfo2025[FilingType.SINGLE].details[0].taxes,
+            bracketInfo2025[FilingType.SINGLE].details[1].taxes,
+            (75000 - 15750 - bracketInfo2025[FilingType.SINGLE].details[2].min) * bracketInfo2025[FilingType.SINGLE].details[2].rate,
             0,
             0,
             0,
             0,
         ],
         totalTaxes: 7948.78,
-        filingType: FilingType.SINGLE
+        filingType: FilingType.SINGLE,
+        taxYear: TaxYear.YEAR_2025,
     }
 }
 
@@ -268,19 +489,22 @@ if (taxLocationStorage) {
 // }
 
 function updateCalculations(): void {
+    taxStore.standardDeduction = bracketInfoByYear[taxStore.taxYear][taxStore.filingType].standardDeduction
+    taxStore.taxableIncome = taxStore.annualIncome - taxStore.standardDeduction
+    if (taxStore.taxableIncome < 0) {
+        taxStore.taxableIncome = 0
+    }
     taxStore.totalTaxes = 0
-    for (let i = 0; i < bracketInfo[taxStore.filingType].details.length; ++i) {
+    for (let i = 0; i < bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details.length; ++i) {
         let bracketTax = 0
-        if (taxStore.taxableIncome < bracketInfo[taxStore.filingType].details[i].max && taxStore.taxableIncome > bracketInfo[taxStore.filingType].details[i].min) {
-            bracketTax = (taxStore.taxableIncome - bracketInfo[taxStore.filingType].details[i].min) * bracketInfo[taxStore.filingType].details[i].rate
-        } else if (taxStore.taxableIncome > bracketInfo[taxStore.filingType].details[i].max) {
-            bracketTax = bracketInfo[taxStore.filingType].details[i].taxes
+        if (taxStore.taxableIncome < bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].max && taxStore.taxableIncome > bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].min) {
+            bracketTax = (taxStore.taxableIncome - bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].min) * bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].rate
+        } else if (taxStore.taxableIncome > bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].max) {
+            bracketTax = bracketInfoByYear[taxStore.taxYear][taxStore.filingType].details[i].taxes
         }
         taxStore.brackets[i] = bracketTax
         taxStore.totalTaxes += bracketTax
     }
-    taxStore.standardDeduction = bracketInfo[taxStore.filingType].standardDeduction
-    taxStore.taxableIncome = taxStore.annualIncome - taxStore.standardDeduction
     standardDeduction.textContent = formatCurrency(taxStore.standardDeduction)
     taxableIncome.textContent = formatCurrency(taxStore.taxableIncome)
     totalTaxes.textContent = formatCurrency(taxStore.totalTaxes)
@@ -432,6 +656,20 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     localStorage.setItem(taxStorageKey, JSON.stringify(taxStore))
 })
 
+yearButtons.forEach((button: Element) => {
+    button.addEventListener("change", (event: Event) => {
+        const target = event.target as HTMLInputElement
+        const selectedTaxYear = target.value
+        if (selectedTaxYear === TaxYear.YEAR_2026) {
+            taxStore.taxYear = TaxYear.YEAR_2026
+        } else {
+            taxStore.taxYear = TaxYear.YEAR_2025
+        }
+        updateCalculations()
+        localStorage.setItem(taxStorageKey, JSON.stringify(taxStore))
+    })
+})
+
 radioButtons.forEach((button: Element) => {
     button.addEventListener("change", (event: Event) => {
         const target = event.target as HTMLInputElement
@@ -470,6 +708,15 @@ function convertFilingType(): string {
     }
 }
 
+function convertTaxYear(): string {
+    switch (taxStore.taxYear) {
+        case TaxYear.YEAR_2026:
+            return "2026"
+        default:
+            return "2025"
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const grossIncome: HTMLElement = document.getElementById("grossIncome") ?? (() => { throw new Error("grossIncome cannot be null") })()
     grossIncome.setAttribute("value", `${taxStore.annualIncome}`)
@@ -478,6 +725,12 @@ document.addEventListener("DOMContentLoaded", () => {
     radioButtons.forEach((button) => {
         const btn = button as HTMLInputElement
         if (btn.value == savedFilingType) btn.checked = true
+    })
+
+    const savedTaxYear: string = convertTaxYear()
+    yearButtons.forEach((button) => {
+        const btn = button as HTMLInputElement
+        if (btn.value == savedTaxYear) btn.checked = true
     })
 })
 updateCalculations()
