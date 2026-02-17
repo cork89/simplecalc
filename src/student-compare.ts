@@ -18,9 +18,7 @@ const annualSalary: HTMLElement = document.getElementById("annualSalary") ?? (()
 const employerMatchRate: HTMLElement = document.getElementById("employerMatchRate") ?? (() => { throw new Error("employerMatchRate cannot be null") })()
 
 const interestAccrued: HTMLElement = document.getElementById("interestAccrued") ?? (() => { throw new Error("interestAccrued cannot be null") })()
-const monthlyPayment: HTMLElement = document.getElementById("monthlyPayment") ?? (() => { throw new Error("monthlyPayment cannot be null") })()
 
-const monthlyMatchValue: HTMLElement = document.getElementById("monthlyMatchValue") ?? (() => { throw new Error("monthlyMatchValue cannot be null") })()
 const employerMatchBalance: HTMLElement = document.getElementById("employerMatchBalance") ?? (() => { throw new Error("employerMatchBalance cannot be null") })()
 const payoffYearsLabel: HTMLElement = document.getElementById("payoffYearsLabel") ?? (() => { throw new Error("payoffYearsLabel cannot be null") })()
 const interestMinusMatch: HTMLElement = document.getElementById("interestMinusMatch") ?? (() => { throw new Error("interestMinusMatch cannot be null") })()
@@ -38,7 +36,6 @@ function simulateEmployerMatchBalance(monthlyMatch: number, months: number): num
 
 function updateCalculations(): void {
     const payment = calculateMonthlyPayment(studentLoanStore.loanAmount, studentLoanStore.interestRate, studentLoanStore.loanTerm)
-    monthlyPayment.textContent = formatCurrency(payment)
     interestAccrued.textContent = formatCurrency(payment * 12 * studentLoanStore.loanTerm - studentLoanStore.loanAmount)
 
     const monthlyMatch = (studentCompareStore.annualSalary * (studentCompareStore.employerMatchRate / 100) * 2) / 12
@@ -46,7 +43,6 @@ function updateCalculations(): void {
     const matchBalance = simulateEmployerMatchBalance(monthlyMatch, payoffMonths)
     const interestMinusMatchValue = matchBalance - (payment * 12 * studentLoanStore.loanTerm - studentLoanStore.loanAmount)
 
-    monthlyMatchValue.textContent = formatCurrency(monthlyMatch)
     employerMatchBalance.textContent = formatCurrency(matchBalance)
     payoffYearsLabel.textContent = `${studentLoanStore.loanTerm}`
     interestMinusMatch.textContent = formatCurrency(interestMinusMatchValue)

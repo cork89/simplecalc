@@ -177,6 +177,22 @@ class CustomSlider extends HTMLElement {
             -webkit-appearance: none;
             margin: 0;
         }
+
+        @media (pointer: coarse) {
+            input[type="range"] {
+                height: 44px;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                width: 32px;
+                height: 32px;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                width: 32px;
+                height: 32px;
+            }
+        }
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;

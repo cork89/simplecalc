@@ -78,33 +78,17 @@
             </simple-slider>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); align-items: start;">
-            <div class="results">
-                <div class="result-item">
-                    <span class="result-label">Interest Accrued:</span>
-                    <span class="result-value" id="interestAccrued">$14,503</span>
-                </div>
-                <div class="result-item main-result">
-                    <span class="result-label">Monthly Payment Required:</span>
-                    <span class="result-value" id="monthlyPayment">$454</span>
-                </div>
-            </div>
-
-            <div class="results">
-                <div class="result-item">
-                    <span class="result-label">Monthly Total Contribution:</span>
-                    <span class="result-value" id="monthlyMatchValue">$233</span>
-                </div>
-                <div class="result-item main-result">
-                    <span class="result-label">Contribution After <span id="payoffYearsLabel">10</span> Years:</span>
-                    <span class="result-value" id="employerMatchBalance">$0</span>
-                </div>
-            </div>
-        </div>
-
         <div class="results" style="margin-top: var(--spacing-xl);">
+            <div class="result-item">
+                <span class="result-label">Loan Interest Accrued:</span>
+                <span class="result-value" id="interestAccrued">$14,503</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Contributions After <span id="payoffYearsLabel">10</span> Years:</span>
+                <span class="result-value" id="employerMatchBalance">$0</span>
+            </div>
             <div class="result-item main-result">
-                <span class="result-label">Contributions - Interest Accrued:</span>
+                <span class="result-label">Contributions minus Interest:</span>
                 <span class="result-value" id="interestMinusMatch">$0</span>
             </div>
         </div>
