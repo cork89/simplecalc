@@ -26,6 +26,16 @@ export type StudentCompareStore = {
     employerMatchRate: number
 }
 
+export type CompareStore = {
+    homePriceA: number
+    homePriceB: number
+    interestRate: number
+    hoaFeesA: number
+    hoaFeesB: number
+    loanTermA: number
+    loanTermB: number
+}
+
 export type AgeStore = {
     age: number
     year: number
@@ -41,6 +51,7 @@ export type RetirementStore = {
 const unifiedStorageKey = "unifiedStore"
 const studentLoanStorageKey = "studentLoanStore"
 const studentCompareStorageKey = "studentCompareStore"
+const compareStorageKey = "compareStore"
 export const ageStorageKey = "ageStore"
 export const retirementStorageKey = "retirementStore"
 
@@ -197,6 +208,18 @@ function getDefaultStudentCompareStore(): StudentCompareStore {
     }
 }
 
+function getDefaultCompareStore(): CompareStore {
+    return {
+        homePriceA: 300000,
+        homePriceB: 350000,
+        interestRate: 6.5,
+        hoaFeesA: 0,
+        hoaFeesB: 0,
+        loanTermA: 30,
+        loanTermB: 30,
+    }
+}
+
 function getDefaultAgeStore(): AgeStore {
     return {
         age: 25,
@@ -236,6 +259,13 @@ export let studentCompareStore: StudentCompareStore = initializeStoreX(getDefaul
 export function updateStudentCompareStore(updates: Partial<StudentCompareStore>): void {
     studentCompareStore = { ...studentCompareStore, ...updates }
     saveStore(studentCompareStore, studentCompareStorageKey)
+}
+
+export let compareStore: CompareStore = initializeStoreX(getDefaultCompareStore, compareStorageKey) as CompareStore
+
+export function updateCompareStore(updates: Partial<CompareStore>): void {
+    compareStore = { ...compareStore, ...updates }
+    saveStore(compareStore, compareStorageKey)
 }
 
 export let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as AgeStore

@@ -35,6 +35,18 @@
             margin-bottom: var(--spacing-xxxl);
         }
 
+        .shared-controls {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .scenario-action {
+            margin-top: var(--spacing-md);
+        }
+
+        .scenario-action button {
+            width: 100%;
+        }
+
         @media (max-width: 768px) {
             .comparison-layout {
                 grid-template-columns: 1fr;
@@ -189,13 +201,18 @@
             </div>
         </h2>
 
+        <div class="shared-controls">
+            <simple-slider id="interestRate" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
+            </simple-slider>
+            <div class="scenario-action">
+                <button id="matchScenarioBButton" class="toggle-button">Match Scenario A Total In B</button>
+            </div>
+        </div>
+
         <div class="comparison-layout">
             <div class="scenario-card">
                 <h3>Scenario A</h3>
                 <simple-slider id="homePriceA" label="Home Price" min="100000" max="800000" value="300000" step="10000" unit="$">
-                </simple-slider>
-
-                <simple-slider id="interestRateA" label="Interest Rate (%)" min="3" max="8" value="6.5" step="0.1" unit="%">
                 </simple-slider>
 
                 <simple-slider id="hoaFeesA" label="HOA Fees" min="0" max="1000" value="0" step="20" unit="$">
@@ -254,9 +271,6 @@
             <div class="scenario-card">
                 <h3>Scenario B</h3>
                 <simple-slider id="homePriceB" label="Home Price" min="100000" max="800000" value="350000" step="10000" unit="$">
-                </simple-slider>
-
-                <simple-slider id="interestRateB" label="Interest Rate (%)" min="3" max="8" value="5.5" step="0.1" unit="%">
                 </simple-slider>
 
                 <simple-slider id="hoaFeesB" label="HOA Fees" min="0" max="1000" value="0" step="20" unit="$">
