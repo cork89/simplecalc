@@ -1,4 +1,4 @@
-export type UnifiedStore = {
+type UnifiedStore = {
     // From Rule1Store
     annualIncome: number
     monthlyIncomeAmount: number
@@ -15,20 +15,22 @@ export type UnifiedStore = {
     loanTerm: number
 }
 
-export type StudentLoanStore = {
+type StudentLoanStore = {
     loanAmount: number
     loanTerm: number
     interestRate: number
 }
 
-export type StudentCompareStore = {
+type StudentCompareStore = {
     annualSalary: number
     employerMatchRate: number
 }
 
-export type CompareStore = {
+type CompareStore = {
     homePriceA: number
     homePriceB: number
+    downPaymentPercentA: number
+    downPaymentPercentB: number
     interestRate: number
     hoaFeesA: number
     hoaFeesB: number
@@ -36,12 +38,12 @@ export type CompareStore = {
     loanTermB: number
 }
 
-export type AgeStore = {
+type AgeStore = {
     age: number
     year: number
 }
 
-export type RetirementStore = {
+type RetirementStore = {
     age: number
     nestEgg: number
     returnRate: number
@@ -52,36 +54,16 @@ const unifiedStorageKey = "unifiedStore"
 const studentLoanStorageKey = "studentLoanStore"
 const studentCompareStorageKey = "studentCompareStore"
 const compareStorageKey = "compareStore"
-export const ageStorageKey = "ageStore"
-export const retirementStorageKey = "retirementStore"
+const ageStorageKey = "ageStore"
+const retirementStorageKey = "retirementStore"
 
-export function formatCurrency(amount: number): string {
+function formatCurrency(amount: number): string {
     return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(amount);
-}
-
-export function calculateMonthlyPayment(
-    loanAmount: number,
-    annualRate: number,
-    years: number,
-): number {
-    const monthlyRate: number = annualRate / 100 / 12
-    const numPayments: number = years * 12
-
-    if (monthlyRate === 0) {
-        return loanAmount / numPayments
-    }
-
-    let amortizedRate: number = 1
-    const monthlyRatePlus1 = 1 + monthlyRate
-    for (let i = 0; i < numPayments; ++i) {
-        amortizedRate *= monthlyRatePlus1
-    }
-    return (loanAmount * (monthlyRate * amortizedRate)) / (amortizedRate - 1)
 }
 
 function migrateLegacyStores(): Partial<UnifiedStore> | null {
@@ -131,7 +113,7 @@ function migrateLegacyStores(): Partial<UnifiedStore> | null {
     return hasLegacyData ? migratedData : null
 }
 
-export function initializeStore(): UnifiedStore {
+function initializeStore(): UnifiedStore {
     const existingStorage = localStorage.getItem(unifiedStorageKey)
     const migratedData = migrateLegacyStores()
 
@@ -176,12 +158,22 @@ function getDefaultStore(): UnifiedStore {
     }
 }
 
-export function initializeStoreX<T>(getDefaultStore: () => T, storageKey: string): T {
+function initializeStoreX<T>(getDefaultStore: () => T, storageKey: string): T {
     const existingStorage = localStorage.getItem(storageKey)
 
     if (existingStorage) {
         try {
-            return JSON.parse(existingStorage) as T
+            const parsedStore = JSON.parse(existingStorage) as T
+
+            if (storageKey === compareStorageKey) {
+                const migratedCompareStore = migrateCompareStore(parsedStore as CompareStore)
+                localStorage.setItem(storageKey, JSON.stringify(migratedCompareStore))
+                return migratedCompareStore as T
+            }
+
+            const mergedStore = { ...getDefaultStore(), ...parsedStore }
+            localStorage.setItem(storageKey, JSON.stringify(mergedStore))
+            return mergedStore as T
         } catch (e) {
             console.error("Failed to parse unified store, using defaults:", e)
         }
@@ -191,6 +183,48 @@ export function initializeStoreX<T>(getDefaultStore: () => T, storageKey: string
     localStorage.setItem(storageKey, JSON.stringify(defaultStore))
     return defaultStore
 
+}
+
+function calculateMonthlyPayment(
+    loanAmount: number,
+    annualRate: number,
+    years: number,
+): number {
+    const monthlyRate: number = annualRate / 100 / 12
+    const numPayments: number = years * 12
+
+    if (monthlyRate === 0) {
+        return loanAmount / numPayments
+    }
+
+    let amortizedRate: number = 1
+    const monthlyRatePlus1 = 1 + monthlyRate
+    for (let i = 0; i < numPayments; ++i) {
+        amortizedRate *= monthlyRatePlus1
+    }
+
+    return (loanAmount * (monthlyRate * amortizedRate)) / (amortizedRate - 1)
+}
+
+
+function migrateCompareStore(compareStoreData: CompareStore | { scenarioA?: { homePrice?: number; interestRate?: number; loanTerm?: number; hoaFees?: number }; scenarioB?: { homePrice?: number; interestRate?: number; loanTerm?: number; hoaFees?: number } }): CompareStore {
+    const defaultStore = getDefaultCompareStore()
+
+    if ("scenarioA" in compareStoreData || "scenarioB" in compareStoreData) {
+        return {
+            homePriceA: compareStoreData.scenarioA?.homePrice ?? defaultStore.homePriceA,
+            homePriceB: compareStoreData.scenarioB?.homePrice ?? defaultStore.homePriceB,
+            downPaymentPercentA: defaultStore.downPaymentPercentA,
+            downPaymentPercentB: defaultStore.downPaymentPercentB,
+            interestRate: compareStoreData.scenarioA?.interestRate ?? compareStoreData.scenarioB?.interestRate ?? defaultStore.interestRate,
+            hoaFeesA: compareStoreData.scenarioA?.hoaFees ?? defaultStore.hoaFeesA,
+            hoaFeesB: compareStoreData.scenarioB?.hoaFees ?? defaultStore.hoaFeesB,
+            loanTermA: compareStoreData.scenarioA?.loanTerm ?? defaultStore.loanTermA,
+            loanTermB: compareStoreData.scenarioB?.loanTerm ?? defaultStore.loanTermB,
+        }
+    }
+
+    return { ...defaultStore, ...compareStoreData }
 }
 
 function getDefaultStudentLoanStore(): StudentLoanStore {
@@ -212,6 +246,8 @@ function getDefaultCompareStore(): CompareStore {
     return {
         homePriceA: 300000,
         homePriceB: 350000,
+        downPaymentPercentA: 20,
+        downPaymentPercentB: 20,
         interestRate: 6.5,
         hoaFeesA: 0,
         hoaFeesB: 0,
@@ -236,38 +272,63 @@ function getDefaultRetirementStore(): RetirementStore {
     }
 }
 
-export function saveStore<T>(store: T, storageKey: string): void {
+function saveStore<T>(store: T, storageKey: string): void {
     localStorage.setItem(storageKey, JSON.stringify(store))
 }
 
-export let unifiedStore: UnifiedStore = initializeStore()
+let unifiedStore: UnifiedStore = initializeStore()
 
-export function updateStore(updates: Partial<UnifiedStore>): void {
+function updateStore(updates: Partial<UnifiedStore>): void {
     unifiedStore = { ...unifiedStore, ...updates }
     saveStore(unifiedStore, unifiedStorageKey)
 }
 
-export let studentLoanStore: StudentLoanStore = initializeStoreX(getDefaultStudentLoanStore, studentLoanStorageKey) as StudentLoanStore
+let studentLoanStore: StudentLoanStore = initializeStoreX(getDefaultStudentLoanStore, studentLoanStorageKey) as StudentLoanStore
 
-export function updateStudentLoanStore(updates: Partial<StudentLoanStore>): void {
+function updateStudentLoanStore(updates: Partial<StudentLoanStore>): void {
     studentLoanStore = { ...studentLoanStore, ...updates }
     saveStore(studentLoanStore, studentLoanStorageKey)
 }
 
-export let studentCompareStore: StudentCompareStore = initializeStoreX(getDefaultStudentCompareStore, studentCompareStorageKey) as StudentCompareStore
+let studentCompareStore: StudentCompareStore = initializeStoreX(getDefaultStudentCompareStore, studentCompareStorageKey) as StudentCompareStore
 
-export function updateStudentCompareStore(updates: Partial<StudentCompareStore>): void {
+function updateStudentCompareStore(updates: Partial<StudentCompareStore>): void {
     studentCompareStore = { ...studentCompareStore, ...updates }
     saveStore(studentCompareStore, studentCompareStorageKey)
 }
 
-export let compareStore: CompareStore = initializeStoreX(getDefaultCompareStore, compareStorageKey) as CompareStore
+let compareStore: CompareStore = initializeStoreX(getDefaultCompareStore, compareStorageKey) as CompareStore
 
-export function updateCompareStore(updates: Partial<CompareStore>): void {
+function updateCompareStore(updates: Partial<CompareStore>): void {
     compareStore = { ...compareStore, ...updates }
     saveStore(compareStore, compareStorageKey)
 }
 
-export let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as AgeStore
+let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as AgeStore
 
-export let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStore, retirementStorageKey) as RetirementStore
+let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStore, retirementStorageKey) as RetirementStore
+
+export {
+    ageStorageKey,
+    formatCurrency,
+    calculateMonthlyPayment,
+    saveStore,
+    unifiedStore,
+    updateStore,
+    studentLoanStore,
+    updateStudentLoanStore,
+    studentCompareStore,
+    updateStudentCompareStore,
+    compareStore,
+    updateCompareStore,
+    ageStore,
+}
+
+export type {
+    UnifiedStore,
+    StudentLoanStore,
+    StudentCompareStore,
+    CompareStore,
+    AgeStore,
+    RetirementStore,
+}

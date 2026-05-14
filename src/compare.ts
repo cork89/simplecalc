@@ -1,21 +1,10 @@
-import { calculateMonthlyPayment, compareStore, formatCurrency, unifiedStore, updateCompareStore, updateStore } from "./store.js";
-
-interface ScenarioData {
-    homePrice: number;
-    interestRate: number;
-    loanTerm: number;
-    hoaFees: number;
-    monthlyPayment: number;
-    totalCost: number;
-    totalInterest: number;
-    totalHoa: number;
-    principal: number;
-    downPayment: number;
-    requiredIncome: number;
-}
+import { compareStore, formatCurrency, updateCompareStore, updateStore } from "./store.js";
+import { calculateHomePriceForTargetTotalCost, calculateScenario } from "./compare-calculations.js";
+import { type ScenarioData } from "./types.js";
 
 const scenarioA: ScenarioData = {
     homePrice: compareStore.homePriceA,
+    downPaymentPercent: compareStore.downPaymentPercentA ?? 20,
     interestRate: compareStore.interestRate,
     loanTerm: compareStore.loanTermA,
     hoaFees: compareStore.hoaFeesA,
@@ -30,6 +19,7 @@ const scenarioA: ScenarioData = {
 
 const scenarioB: ScenarioData = {
     homePrice: compareStore.homePriceB,
+    downPaymentPercent: compareStore.downPaymentPercentB ?? 20,
     interestRate: compareStore.interestRate,
     loanTerm: compareStore.loanTermB,
     hoaFees: compareStore.hoaFeesB,
@@ -47,6 +37,8 @@ const monthlyPaymentB = document.getElementById("monthlyPaymentB") ?? (() => { t
 
 const downPaymentA = document.getElementById("downPaymentA") ?? (() => { throw new Error("downPaymentA cannot be null"); })();
 const downPaymentB = document.getElementById("downPaymentB") ?? (() => { throw new Error("downPaymentB cannot be null"); })();
+const downPaymentLabelA = document.getElementById("downPaymentLabelA") ?? (() => { throw new Error("downPaymentLabelA cannot be null"); })();
+const downPaymentLabelB = document.getElementById("downPaymentLabelB") ?? (() => { throw new Error("downPaymentLabelB cannot be null"); })();
 
 const barPrincipalA = document.getElementById("barPrincipalA") ?? (() => { throw new Error("barPrincipalA cannot be null"); })();
 const barInterestA = document.getElementById("barInterestA") ?? (() => { throw new Error("barInterestA cannot be null"); })();
@@ -73,26 +65,21 @@ const comparisonWinner = document.getElementById("comparisonWinner") ?? (() => {
 const matchScenarioBButton = document.getElementById("matchScenarioBButton") ?? (() => { throw new Error("matchScenarioBButton cannot be null"); })();
 
 const homePriceASlider = document.getElementById("homePriceA") ?? (() => { throw new Error("homePriceA cannot be null"); })();
+const downPaymentPercentASlider = document.getElementById("downPaymentPercentA") ?? (() => { throw new Error("downPaymentPercentA cannot be null"); })();
 const interestRateSlider = document.getElementById("interestRate") ?? (() => { throw new Error("interestRate cannot be null"); })();
 const hoaFeesASlider = document.getElementById("hoaFeesA") ?? (() => { throw new Error("hoaFeesA cannot be null"); })();
 const homePriceBSlider = document.getElementById("homePriceB") ?? (() => { throw new Error("homePriceB cannot be null"); })();
+const downPaymentPercentBSlider = document.getElementById("downPaymentPercentB") ?? (() => { throw new Error("downPaymentPercentB cannot be null"); })();
 const hoaFeesBSlider = document.getElementById("hoaFeesB") ?? (() => { throw new Error("hoaFeesB cannot be null"); })();
 
 function syncScenarioControls(): void {
     homePriceASlider.setAttribute("value", `${scenarioA.homePrice}`);
+    downPaymentPercentASlider.setAttribute("value", `${scenarioA.downPaymentPercent}`);
     interestRateSlider.setAttribute("value", `${scenarioA.interestRate}`);
     hoaFeesASlider.setAttribute("value", `${scenarioA.hoaFees}`);
     homePriceBSlider.setAttribute("value", `${scenarioB.homePrice}`);
+    downPaymentPercentBSlider.setAttribute("value", `${scenarioB.downPaymentPercent}`);
     hoaFeesBSlider.setAttribute("value", `${scenarioB.hoaFees}`);
-}
-
-function calculateHomePriceForTargetTotalCost(targetTotalCost: number, interestRate: number, loanTerm: number, hoaFees: number): number {
-    const monthlyPaymentPerDollar = calculateMonthlyPayment(1, interestRate, loanTerm);
-    const totalMonths = loanTerm * 12;
-    const totalCostPerDollar = (monthlyPaymentPerDollar * 0.8 * totalMonths) + 0.2;
-    const totalHoaCost = hoaFees * totalMonths;
-
-    return (targetTotalCost - totalHoaCost) / totalCostPerDollar;
 }
 
 function clampHomePriceToSliderRange(homePrice: number): number {
@@ -100,20 +87,6 @@ function clampHomePriceToSliderRange(homePrice: number): number {
     const max = parseInt(homePriceBSlider.getAttribute("max") ?? "800000");
 
     return Math.min(Math.max(homePrice, min), max);
-}
-
-function calculateScenario(scenario: ScenarioData): void {
-    const downPayment = scenario.homePrice * 0.2;
-    const loanAmount = scenario.homePrice - downPayment;
-
-    const baseMonthlyPayment = calculateMonthlyPayment(loanAmount, scenario.interestRate, scenario.loanTerm);
-    scenario.monthlyPayment = baseMonthlyPayment + scenario.hoaFees;
-    scenario.totalCost = (baseMonthlyPayment * 12 * scenario.loanTerm) + downPayment + (scenario.hoaFees * 12 * scenario.loanTerm);
-    scenario.totalInterest = (baseMonthlyPayment * 12 * scenario.loanTerm) - loanAmount;
-    scenario.totalHoa = scenario.hoaFees * 12 * scenario.loanTerm;
-    scenario.principal = downPayment + loanAmount;
-    scenario.downPayment = downPayment;
-    scenario.requiredIncome = scenario.monthlyPayment * 12 * 3;
 }
 
 function determineWinner(): string {
@@ -160,6 +133,8 @@ function updateComparison(): void {
     monthlyPaymentA.textContent = formatCurrency(scenarioA.monthlyPayment);
     monthlyPaymentB.textContent = formatCurrency(scenarioB.monthlyPayment);
 
+    downPaymentLabelA.textContent = `Down Payment (${scenarioA.downPaymentPercent}%):`;
+    downPaymentLabelB.textContent = `Down Payment (${scenarioB.downPaymentPercent}%):`;
     downPaymentA.textContent = formatCurrency(scenarioA.downPayment);
     downPaymentB.textContent = formatCurrency(scenarioB.downPayment);
 
@@ -205,7 +180,8 @@ matchScenarioBButton.addEventListener("click", () => {
         scenarioA.totalCost,
         scenarioB.interestRate,
         scenarioB.loanTerm,
-        scenarioB.hoaFees
+        scenarioB.hoaFees,
+        scenarioB.downPaymentPercent
     );
 
     scenarioB.homePrice = clampHomePriceToSliderRange(Math.round(matchingHomePrice / 10000) * 10000);
@@ -225,12 +201,18 @@ document.body.addEventListener("slider-change", (event) => {
     if (customEvent.detail.id === "homePriceA") {
         scenarioA.homePrice = parseInt(customEvent.detail.value);
         updateCompareStore({ homePriceA: scenarioA.homePrice });
+    } else if (customEvent.detail.id === "downPaymentPercentA") {
+        scenarioA.downPaymentPercent = parseFloat(customEvent.detail.value);
+        updateCompareStore({ downPaymentPercentA: scenarioA.downPaymentPercent });
     } else if (customEvent.detail.id === "hoaFeesA") {
         scenarioA.hoaFees = parseInt(customEvent.detail.value);
         updateCompareStore({ hoaFeesA: scenarioA.hoaFees });
     } else if (customEvent.detail.id === "homePriceB") {
         scenarioB.homePrice = parseInt(customEvent.detail.value);
         updateCompareStore({ homePriceB: scenarioB.homePrice });
+    } else if (customEvent.detail.id === "downPaymentPercentB") {
+        scenarioB.downPaymentPercent = parseFloat(customEvent.detail.value);
+        updateCompareStore({ downPaymentPercentB: scenarioB.downPaymentPercent });
     } else if (customEvent.detail.id === "hoaFeesB") {
         scenarioB.hoaFees = parseInt(customEvent.detail.value);
         updateCompareStore({ hoaFeesB: scenarioB.hoaFees });
@@ -266,6 +248,11 @@ loanTermRadioButtonsB.forEach((button) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    updateCompareStore({
+        downPaymentPercentA: scenarioA.downPaymentPercent,
+        downPaymentPercentB: scenarioB.downPaymentPercent,
+    });
+
     syncScenarioControls();
 
     loanTermRadioButtonsA.forEach((button) => {

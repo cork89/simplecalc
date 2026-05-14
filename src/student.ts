@@ -1,5 +1,5 @@
 import { CustomSliderEventDetail } from "./global"
-import { studentLoanStore, updateStudentLoanStore, calculateMonthlyPayment, formatCurrency } from "./store.js"
+import { studentLoanStore, updateStudentLoanStore, formatCurrency, calculateMonthlyPayment } from "./store.js"
 
 const loanAmount: HTMLElement = document.getElementById("loanAmount") ?? (() => { throw new Error("loanAmount cannot be null") })()
 const loanTerm: HTMLElement = document.getElementById("loanTerm") ?? (() => { throw new Error("loanTerm cannot be null") })()
