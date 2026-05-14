@@ -1,4 +1,5 @@
 import { CustomSliderEventDetail } from "./global"
+import { addNumericRadioListener, setCheckedRadioValue } from "./dom.js"
 import { unifiedStore, updateStore, formatCurrency } from "./store.js"
 
 const monthlyIncome: HTMLElement = document.getElementById("monthlyIncome") ?? (() => { throw new Error("monthlyIncome cannot be null") })()
@@ -48,12 +49,9 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
 })
 
 const loanTermRadioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="loanTerm"]')
-loanTermRadioButtons.forEach((button: Element) => {
-    button.addEventListener("change", (event: Event) => {
-        const target = event.target as HTMLInputElement
-        unifiedStore.loanTerm = parseInt(target.value)
-        updateCalculations()
-    })
+addNumericRadioListener(loanTermRadioButtons, (value: number) => {
+    unifiedStore.loanTerm = value
+    updateCalculations()
 })
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,9 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
     grossIncome.setAttribute("value", `${unifiedStore.annualIncome}`)
     interestRate.setAttribute("value", `${unifiedStore.interestRate}`)
 
-    loanTermRadioButtons.forEach((button) => {
-        const btn = button as HTMLInputElement
-        if (parseInt(btn.value) == unifiedStore.loanTerm) btn.checked = true
-    })
+    setCheckedRadioValue(loanTermRadioButtons, unifiedStore.loanTerm)
 })
 updateIncomeCalculations()

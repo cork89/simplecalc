@@ -1,4 +1,4 @@
-export { CustomSliderEventDetail }
+export type { CustomSliderEventDetail }
 
 declare global {
     interface CustomSliderEventDetail {

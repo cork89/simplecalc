@@ -330,5 +330,4 @@ export type {
     StudentCompareStore,
     CompareStore,
     AgeStore,
-    RetirementStore,
 }
