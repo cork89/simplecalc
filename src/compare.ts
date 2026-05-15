@@ -1,4 +1,4 @@
-import { compareStore, formatCurrency, updateCompareStore, updateStore } from "./store.js";
+import { compareStore, formatCurrency, initializeStores, updateCompareStore, updateStore } from "./store.js";
 import { calculateHomePriceForTargetTotalCost, calculateScenario } from "./compare-calculations.js";
 import { type ScenarioData } from "./types.js";
 
@@ -248,6 +248,22 @@ loanTermRadioButtonsB.forEach((button) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    void initializeStores().then(initializePage);
+});
+
+function initializePage(): void {
+    scenarioA.homePrice = compareStore.homePriceA;
+    scenarioA.downPaymentPercent = compareStore.downPaymentPercentA ?? 20;
+    scenarioA.interestRate = compareStore.interestRate;
+    scenarioA.loanTerm = compareStore.loanTermA;
+    scenarioA.hoaFees = compareStore.hoaFeesA;
+
+    scenarioB.homePrice = compareStore.homePriceB;
+    scenarioB.downPaymentPercent = compareStore.downPaymentPercentB ?? 20;
+    scenarioB.interestRate = compareStore.interestRate;
+    scenarioB.loanTerm = compareStore.loanTermB;
+    scenarioB.hoaFees = compareStore.hoaFeesB;
+
     updateCompareStore({
         downPaymentPercentA: scenarioA.downPaymentPercent,
         downPaymentPercentB: scenarioB.downPaymentPercent,
@@ -266,6 +282,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     updateComparison();
-});
-
-updateComparison();
+}

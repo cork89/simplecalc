@@ -1,4 +1,4 @@
-import { ageStorageKey, ageStore, saveStore } from "./store.js"
+import { ageStorageKey, ageStore, initializeStores, saveStore } from "./store.js"
 
 const ageSlider: HTMLElement = document.getElementById('ageSlider') ?? (() => { throw new Error("ageSlider cannot be null") })()
 const yearSlider: HTMLElement = document.getElementById('yearSlider') ?? (() => { throw new Error("yearSlider cannot be null") })()
@@ -38,9 +38,10 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     calculateAge()
 })
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializePage(): void {
     ageSlider.setAttribute("value", `${ageStore.age}`)
     yearSlider.setAttribute("value", `${ageStore.year}`)
-})
+    calculateAge()
+}
 
-calculateAge()
+void initializeStores().then(initializePage)

@@ -57,6 +57,84 @@ const compareStorageKey = "compareStore"
 const ageStorageKey = "ageStore"
 const retirementStorageKey = "retirementStore"
 
+const storeDatabaseName = "simpleCalcStore"
+const storeDatabaseVersion = 1
+const storeObjectStoreName = "stores"
+
+type PersistedStore<T> = {
+    key: string
+    value: T
+}
+
+let storeDatabasePromise: Promise<IDBDatabase> | null = null
+
+function openStoreDatabase(): Promise<IDBDatabase> {
+    if (storeDatabasePromise) {
+        return storeDatabasePromise
+    }
+
+    storeDatabasePromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(storeDatabaseName, storeDatabaseVersion)
+
+        request.onupgradeneeded = () => {
+            const database = request.result
+            if (!database.objectStoreNames.contains(storeObjectStoreName)) {
+                database.createObjectStore(storeObjectStoreName, { keyPath: "key" })
+            }
+        }
+
+        request.onsuccess = () => {
+            request.result.onversionchange = () => {
+                request.result.close()
+            }
+            resolve(request.result)
+        }
+
+        request.onerror = () => {
+            reject(request.error ?? new Error("Failed to open store database"))
+        }
+    })
+
+    return storeDatabasePromise
+}
+
+async function readStore<T>(storageKey: string): Promise<T | null> {
+    const database = await openStoreDatabase()
+
+    return await new Promise((resolve, reject) => {
+        const transaction = database.transaction(storeObjectStoreName, "readonly")
+        const objectStore = transaction.objectStore(storeObjectStoreName)
+        const request = objectStore.get(storageKey)
+
+        request.onsuccess = () => {
+            const result = request.result as PersistedStore<T> | undefined
+            resolve(result?.value ?? null)
+        }
+
+        request.onerror = () => {
+            reject(request.error ?? new Error(`Failed to read ${storageKey}`))
+        }
+    })
+}
+
+async function writeStore<T>(store: T, storageKey: string): Promise<void> {
+    const database = await openStoreDatabase()
+
+    await new Promise<void>((resolve, reject) => {
+        const transaction = database.transaction(storeObjectStoreName, "readwrite")
+        const objectStore = transaction.objectStore(storeObjectStoreName)
+        const request = objectStore.put({ key: storageKey, value: store } satisfies PersistedStore<T>)
+
+        request.onsuccess = () => {
+            resolve()
+        }
+
+        request.onerror = () => {
+            reject(request.error ?? new Error(`Failed to write ${storageKey}`))
+        }
+    })
+}
+
 function formatCurrency(amount: number): string {
     return new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -77,74 +155,8 @@ function formatCurrencyShort(amount: number): string {
     }).format(amount)
 }
 
-function migrateLegacyStores(): Partial<UnifiedStore> | null {
-    const rule1Storage = localStorage.getItem("rule1Store")
-    const rule2Storage = localStorage.getItem("rule2Store")
-
-    let migratedData: Partial<UnifiedStore> = {}
-    let hasLegacyData = false
-
-    if (rule1Storage) {
-        try {
-            const rule1Data = JSON.parse(rule1Storage)
-            migratedData = {
-                ...migratedData,
-                annualIncome: rule1Data.annualIncome,
-                monthlyIncomeAmount: rule1Data.monthlyIncomeAmount,
-                maxMonthlyPayment: rule1Data.maxMonthlyPayment,
-                interestRate: rule1Data.interestRate,
-                loanTerm: rule1Data.loanTerm,
-            }
-            hasLegacyData = true
-            localStorage.removeItem("rule1Store")
-        } catch (e) {
-            console.error("Failed to migrate rule1Store:", e)
-        }
-    }
-
-    if (rule2Storage) {
-        try {
-            const rule2Data = JSON.parse(rule2Storage)
-            migratedData = {
-                ...migratedData,
-                homePrice: rule2Data.homePrice,
-                repairFund: rule2Data.repairFund,
-                downPayment: rule2Data.downPayment,
-                loanAmount: rule2Data.loanAmount,
-                interestRate: rule2Data.interestRate ?? migratedData.interestRate,
-                loanTerm: rule2Data.loanTerm ?? migratedData.loanTerm,
-            }
-            hasLegacyData = true
-            localStorage.removeItem("rule2Store")
-        } catch (e) {
-            console.error("Failed to migrate rule2Store:", e)
-        }
-    }
-
-    return hasLegacyData ? migratedData : null
-}
-
 function initializeStore(): UnifiedStore {
-    const existingStorage = localStorage.getItem(unifiedStorageKey)
-    const migratedData = migrateLegacyStores()
-
-    if (existingStorage) {
-        try {
-            return JSON.parse(existingStorage)
-        } catch (e) {
-            console.error("Failed to parse unified store, using defaults:", e)
-        }
-    }
-
-    if (migratedData) {
-        const mergedStore = { ...getDefaultStore(), ...migratedData }
-        localStorage.setItem(unifiedStorageKey, JSON.stringify(mergedStore))
-        return mergedStore
-    }
-
-    const defaultStore = getDefaultStore()
-    localStorage.setItem(unifiedStorageKey, JSON.stringify(defaultStore))
-    return defaultStore
+    return getDefaultStore()
 }
 
 function getDefaultStore(): UnifiedStore {
@@ -169,31 +181,8 @@ function getDefaultStore(): UnifiedStore {
     }
 }
 
-function initializeStoreX<T>(getDefaultStore: () => T, storageKey: string): T {
-    const existingStorage = localStorage.getItem(storageKey)
-
-    if (existingStorage) {
-        try {
-            const parsedStore = JSON.parse(existingStorage) as T
-
-            if (storageKey === compareStorageKey) {
-                const migratedCompareStore = migrateCompareStore(parsedStore as CompareStore)
-                localStorage.setItem(storageKey, JSON.stringify(migratedCompareStore))
-                return migratedCompareStore as T
-            }
-
-            const mergedStore = { ...getDefaultStore(), ...parsedStore }
-            localStorage.setItem(storageKey, JSON.stringify(mergedStore))
-            return mergedStore as T
-        } catch (e) {
-            console.error("Failed to parse unified store, using defaults:", e)
-        }
-    }
-
-    const defaultStore = getDefaultStore()
-    localStorage.setItem(storageKey, JSON.stringify(defaultStore))
-    return defaultStore
-
+function initializeStoreX<T>(getDefaultStore: () => T, _storageKey: string): T {
+    return getDefaultStore()
 }
 
 function calculateMonthlyPayment(
@@ -284,7 +273,9 @@ function getDefaultRetirementStore(): RetirementStore {
 }
 
 function saveStore<T>(store: T, storageKey: string): void {
-    localStorage.setItem(storageKey, JSON.stringify(store))
+    void writeStore(store, storageKey).catch((e: unknown) => {
+        console.error(`Failed to save ${storageKey}:`, e)
+    })
 }
 
 let unifiedStore: UnifiedStore = initializeStore()
@@ -319,11 +310,38 @@ let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as 
 
 let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStore, retirementStorageKey) as RetirementStore
 
+async function hydrateStore<T extends object>(store: T, getDefaultStore: () => T, storageKey: string): Promise<void> {
+    try {
+        const storedData = await readStore<T>(storageKey)
+        const mergedStore = { ...getDefaultStore(), ...(storedData ?? {}) }
+        Object.assign(store, storageKey === compareStorageKey ? migrateCompareStore(mergedStore as CompareStore) : mergedStore)
+
+        if (!storedData) {
+            saveStore(store, storageKey)
+        }
+    } catch (e) {
+        console.error(`Failed to initialize ${storageKey}, using defaults:`, e)
+    }
+}
+
+async function initializeStores(): Promise<void> {
+    await Promise.all([
+        hydrateStore(unifiedStore, getDefaultStore, unifiedStorageKey),
+        hydrateStore(studentLoanStore, getDefaultStudentLoanStore, studentLoanStorageKey),
+        hydrateStore(studentCompareStore, getDefaultStudentCompareStore, studentCompareStorageKey),
+        hydrateStore(compareStore, getDefaultCompareStore, compareStorageKey),
+        hydrateStore(ageStore, getDefaultAgeStore, ageStorageKey),
+        hydrateStore(retirementStore, getDefaultRetirementStore, retirementStorageKey),
+    ])
+}
+
 export {
     ageStorageKey,
+    retirementStorageKey,
     formatCurrency,
     formatCurrencyShort,
     calculateMonthlyPayment,
+    initializeStores,
     saveStore,
     unifiedStore,
     updateStore,
@@ -334,6 +352,7 @@ export {
     compareStore,
     updateCompareStore,
     ageStore,
+    retirementStore,
 }
 
 export type {
@@ -342,4 +361,5 @@ export type {
     StudentCompareStore,
     CompareStore,
     AgeStore,
+    RetirementStore,
 }

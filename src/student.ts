@@ -1,6 +1,6 @@
 import { CustomSliderEventDetail } from "./global"
 import { addNumericRadioListener } from "./dom.js"
-import { studentLoanStore, updateStudentLoanStore, formatCurrency, calculateMonthlyPayment } from "./store.js"
+import { studentLoanStore, updateStudentLoanStore, formatCurrency, calculateMonthlyPayment, initializeStores } from "./store.js"
 
 const loanAmount: HTMLElement = document.getElementById("loanAmount") ?? (() => { throw new Error("loanAmount cannot be null") })()
 const loanTerm: HTMLElement = document.getElementById("loanTerm") ?? (() => { throw new Error("loanTerm cannot be null") })()
@@ -34,9 +34,11 @@ addNumericRadioListener(loanTermRadioButtons, (value: number) => {
     updateCalculations()
 })
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializePage(): void {
     loanAmount.setAttribute("value", `${studentLoanStore.loanAmount}`)
     interestDisplayRate.setAttribute("value", `${studentLoanStore.interestRate}`)
     loanTerm.setAttribute("value", `${studentLoanStore.loanTerm}`)
-})
-updateCalculations()
+    updateCalculations()
+}
+
+void initializeStores().then(initializePage)

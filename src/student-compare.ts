@@ -2,6 +2,7 @@ import { CustomSliderEventDetail } from "./global"
 import {
     calculateMonthlyPayment,
     formatCurrency,
+    initializeStores,
     studentCompareStore,
     studentLoanStore,
     updateStudentCompareStore,
@@ -67,12 +68,13 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     updateCalculations()
 })
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializePage(): void {
     loanAmount.setAttribute("value", `${studentLoanStore.loanAmount}`)
     interestRate.setAttribute("value", `${studentLoanStore.interestRate}`)
     loanTerm.setAttribute("value", `${studentLoanStore.loanTerm}`)
     annualSalary.setAttribute("value", `${studentCompareStore.annualSalary}`)
     employerMatchRate.setAttribute("value", `${studentCompareStore.employerMatchRate}`)
-})
+    updateCalculations()
+}
 
-updateCalculations()
+void initializeStores().then(initializePage)

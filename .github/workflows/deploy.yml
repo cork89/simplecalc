@@ -3,9 +3,9 @@ name: Upload to R2
 on:
   push:
     paths:
-      - 'src/**'
-      - 'package.json'
-      - 'dist/**'
+      - "src/**"
+      - "package.json"
+      - "dist/**"
 
 jobs:
   upload:
@@ -17,13 +17,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build TypeScript
         run: npm run build
+
+      - name: Run Tests
+        run: npm test
 
       - uses: ryand56/r2-upload-action@latest
         with:

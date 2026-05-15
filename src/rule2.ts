@@ -1,6 +1,6 @@
 import { CustomSliderEventDetail } from "./global"
 import { addNumericRadioListener, setCheckedRadioValue } from "./dom.js"
-import { unifiedStore, updateStore, calculateMonthlyPayment, formatCurrency } from "./store.js"
+import { unifiedStore, updateStore, calculateMonthlyPayment, formatCurrency, initializeStores } from "./store.js"
 
 const displayHomePrice: HTMLElement = document.getElementById("displayHomePrice") ?? (() => { throw new Error("displayHomePrice cannot be null") })()
 const monthlyPayment: HTMLElement = document.getElementById("monthlyPayment") ?? (() => { throw new Error("monthlyPayment cannot be null") })()
@@ -53,13 +53,15 @@ addNumericRadioListener(loanTermRadioButtons, (value: number) => {
     updateInterestCalculations()
 })
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializePage(): void {
     const homePrice: HTMLElement = document.getElementById("homePrice") ?? (() => { throw new Error("homePrice cannot be null") })()
     const interestRate: HTMLElement = document.getElementById("interestRate") ?? (() => { throw new Error("interestRate cannot be null") })()
     homePrice.setAttribute("value", `${unifiedStore.homePrice}`)
     interestRate.setAttribute("value", `${unifiedStore.interestRate}`)
 
     setCheckedRadioValue(loanTermRadioButtons, unifiedStore.loanTerm)
-})
-updateHomePriceCalculations()
-updateInterestCalculations()
+    updateHomePriceCalculations()
+    updateInterestCalculations()
+}
+
+void initializeStores().then(initializePage)

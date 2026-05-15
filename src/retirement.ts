@@ -1,4 +1,4 @@
-import { formatCurrency, formatCurrencyShort, saveStore } from "./store.js"
+import { formatCurrency, formatCurrencyShort, initializeStores, retirementStore, retirementStorageKey, saveStore } from "./store.js"
 
 type AgChartInstance = {
     destroy?: () => void
@@ -30,28 +30,7 @@ let quarterlyRate: number = 1
 let withdrawalPerQuarter: number = 1
 let chart: AgChartInstance | null = null
 
-type RetirementStore = {
-    age: number
-    nestEgg: number
-    returnRate: number
-    budget: number
-}
-
 type Point = { age: number; money: number }
-
-const retirementStorageKey: string = "retirementStore"
-const retirementLocationStorage: string | null = localStorage.getItem(retirementStorageKey)
-let retirementStore: RetirementStore
-if (retirementLocationStorage) {
-    retirementStore = JSON.parse(retirementLocationStorage)
-} else {
-    retirementStore = {
-        age: 50,
-        nestEgg: 1000000,
-        returnRate: 8,
-        budget: 3000
-    }
-}
 
 // 2.31% annual inflation rate
 const inflationRate = 0.0231 / 4
@@ -204,7 +183,7 @@ document.body.addEventListener("slider-change", (event: CustomEvent<CustomSlider
     simulateAndDraw()
 })
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializePage(): void {
     age.setAttribute("value", `${retirementStore.age}`)
     nestEgg.setAttribute("value", `${retirementStore.nestEgg}`)
     returnRate.setAttribute("value", `${retirementStore.returnRate}`)
@@ -212,4 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     quarterlyRate = retirementStore.returnRate / 100 / 4
     withdrawalPerQuarter = retirementStore.budget * 3
     simulateAndDraw()
-})
+}
+
+void initializeStores().then(initializePage)
