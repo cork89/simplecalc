@@ -138,7 +138,8 @@ function getChartOptions(): AgChartOptions {
         },
         theme: {
             params: {
-                accentColor: "#4CAF50"
+                accentColor: "#4CAF50",
+                fontFamily: '"Roboto", sans-serif'
             },
             palette: {
                 fills: ["#4CAF50"],

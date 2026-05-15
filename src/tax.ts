@@ -607,6 +607,9 @@ function drawBarChart() {
             }
         },
         theme: {
+            params: {
+                fontFamily: '"Roboto", sans-serif'
+            },
             palette: {
                 fills: colors,
                 strokes: colors
