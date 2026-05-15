@@ -66,6 +66,17 @@ function formatCurrency(amount: number): string {
     }).format(amount);
 }
 
+function formatCurrencyShort(amount: number): string {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        notation: "compact",
+        compactDisplay: "short",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(amount)
+}
+
 function migrateLegacyStores(): Partial<UnifiedStore> | null {
     const rule1Storage = localStorage.getItem("rule1Store")
     const rule2Storage = localStorage.getItem("rule2Store")
@@ -311,6 +322,7 @@ let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStor
 export {
     ageStorageKey,
     formatCurrency,
+    formatCurrencyShort,
     calculateMonthlyPayment,
     saveStore,
     unifiedStore,

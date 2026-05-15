@@ -205,7 +205,7 @@ input[type="range"]::-moz-range-thumb {
     padding: var(--spacing-lg);
     background-color: var(--primary-light);
     border-radius: var(--border-radius);
-    border-left: var(--border-width-accent) solid var(--primary-color);
+    /* border-left: var(--border-width-accent) solid var(--primary-color); */
 }
 
 .error {

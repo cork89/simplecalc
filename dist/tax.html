@@ -78,7 +78,7 @@
             </div>
             <div class="chart-container">
                 <div class="chart-title">Taxes by Bracket</div>
-                <canvas id="taxChart" width="500" height="400"></canvas>
+                <div id="taxChart"></div>
             </div>
             <div class="result-item main-result">
                 <span class="result-label">Total Taxes Owed:</span>
@@ -95,7 +95,9 @@
                 border: 1px solid #ddd;
                 border-radius: 8px;
                 max-width: 100%;
-                height: auto;
+                height: min(70vh, 500px);
+                min-height: 320px;
+                display: block;
             }
 
             .chart-title {
@@ -106,6 +108,7 @@
             }
         </style>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/ag-charts-community/dist/umd/ag-charts-community.js"></script>
     <script src="tax.js" type="module"></script>
 </body>
 

@@ -51,35 +51,20 @@
 
         <div class="chart-container">
             <div class="chart-title">Retirement Runway</div>
-            <canvas id="retirementChart" width="500" height="400"></canvas>
-            <div class="tip" id="tip"></div>
+            <div id="retirementChart"></div>
         </div>
         <style>
             #retirementChart {
                 border: 1px solid #ddd;
                 border-radius: 8px;
                 max-width: 100%;
-                height: auto;
-                aspect-ratio: 5 / 4;
+                height: min(70vh, 500px);
+                min-height: 320px;
                 display: block;
-            }
-
-
-            .tip {
-                position: absolute;
-                pointer-events: none;
-                background: color-mix(in srgb, Canvas 80%, CanvasText 5%);
-                color: CanvasText;
-                border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
-                border-radius: 6px;
-                padding: 6px 8px;
-                font-size: 12px;
-                /* transform: translate(-50%, -120%); */
-                white-space: nowrap;
-                display: none;
             }
         </style>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/ag-charts-community/dist/umd/ag-charts-community.js"></script>
     <script src="retirement.js" type="module"></script>
 </body>
 

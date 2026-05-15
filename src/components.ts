@@ -1,135 +1,162 @@
-import { CustomSliderEventDetail } from "./global"
+import { CustomSliderEventDetail } from "./global";
 
 class CustomSlider extends HTMLElement {
-    private slider!: HTMLInputElement
-    private valueDisplay!: HTMLDivElement
-    private marksContainer!: HTMLDivElement
-    shadowRoot!: ShadowRoot
+  private slider!: HTMLInputElement;
+  private valueDisplay!: HTMLDivElement;
+  private marksContainer!: HTMLDivElement;
+  shadowRoot!: ShadowRoot;
 
-    constructor() {
-        super();
-        this.shadowRoot = this.attachShadow({
-            mode: "open",
-        });
+  constructor() {
+    super();
+    this.shadowRoot = this.attachShadow({
+      mode: "open",
+    });
+  }
+
+  static get observedAttributes(): string[] {
+    return [
+      "min",
+      "max",
+      "value",
+      "step",
+      "label",
+      "unit",
+      "mark-interval",
+      "mark-label-interval",
+    ];
+  }
+
+  connectedCallback(): void {
+    this.render();
+
+    this.slider = this.shadowRoot.querySelector(
+      "input[type='range']",
+    ) as HTMLInputElement;
+    this.valueDisplay = this.shadowRoot.querySelector(
+      ".value-display",
+    ) as HTMLDivElement;
+    this.marksContainer = this.shadowRoot.querySelector(
+      ".marks-container",
+    ) as HTMLDivElement;
+
+    this.slider.addEventListener("input", this._handleSliderInput.bind(this));
+    this._updateDisplay();
+    this._createMarks();
+  }
+
+  attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null,
+  ): void {
+    if (!(this.slider && this.valueDisplay && oldValue !== newValue)) {
+        return;
     }
 
-    static get observedAttributes(): string[] {
-        return ["min", "max", "value", "step", "label", "unit", "mark-interval", "mark-label-interval"];
-    }
-
-    connectedCallback(): void {
-        this.render();
-
-        this.slider = this.shadowRoot.querySelector("input[type='range']",) as HTMLInputElement;
-        this.valueDisplay = this.shadowRoot.querySelector(".value-display",) as HTMLDivElement;
-        this.marksContainer = this.shadowRoot.querySelector(".marks-container") as HTMLDivElement
-
-        this.slider.addEventListener("input", this._handleSliderInput.bind(this));
+    switch (name) {
+      case "label":
+        (
+          this.shadowRoot.querySelector("label") as HTMLLabelElement
+        ).textContent = newValue;
+        break;
+      case "min":
+      case "max":
+      case "step":
+      case "value":
+        (this.slider as any)[name] = newValue;
+      case "unit":
         this._updateDisplay();
-        this._createMarks()
+        break;
+      case "mark-interval":
+      case "mark-label-interval":
+        this._createMarks();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private _handleSliderInput(): void {
+    this._updateDisplay();
+    this.dispatchEvent(
+      new CustomEvent<CustomSliderEventDetail>("slider-change", {
+        detail: {
+          value: this.slider.value,
+          id: this.id,
+        },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private _updateDisplay(): void {
+    const value = this.slider.value;
+    const unit = this.getAttribute("unit") || "";
+    let formattedValue: string;
+
+    if (unit === "$") {
+      formattedValue = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(Number(value));
+    } else {
+      formattedValue = `${value}${unit}`;
     }
 
-    attributeChangedCallback(
-        name: string,
-        oldValue: string | null,
-        newValue: string | null,
-    ): void {
-        if (this.slider && this.valueDisplay && oldValue !== newValue) {
-            if (name === "label") {
-                (this.shadowRoot.querySelector("label") as HTMLLabelElement).textContent =
-                    newValue;
-            } else if (["min", "max", "step", "value"].includes(name)) {
-                (this.slider as any)[name] = newValue;
-                this._updateDisplay();
-            } else if (name === "unit") {
-                this._updateDisplay();
-            } else if (["mark-interval", "mark-label-interval"].includes(name)) {
-                this._createMarks();
-            }
-        }
+    this.valueDisplay.textContent = formattedValue;
+  }
+
+  private _createMarks(): void {
+    if (!this.marksContainer) return;
+
+    // Clear existing marks
+    this.marksContainer.innerHTML = "";
+
+    const markInterval = this.getAttribute("mark-interval");
+    const markLabelInterval = this.getAttribute("mark-label-interval");
+
+    // Only show marks if both attributes are present
+    if (!markInterval || !markLabelInterval) return;
+
+    const min = Number(this.getAttribute("min") || "0");
+    const max = Number(this.getAttribute("max") || "100");
+    const interval = Number(markInterval);
+    const labelInterval = Number(markLabelInterval);
+
+    const totalRange = max - min;
+
+    for (let value = min; value <= max; value += interval) {
+      const position = ((value - min) / totalRange) * 100;
+
+      // Create the mark line
+      const mark = document.createElement("div");
+      mark.className = "mark";
+      mark.style.left = position + "%";
+      this.marksContainer.appendChild(mark);
+
+      // Create the label if it's a label interval
+      if (value % labelInterval === 0) {
+        const label = document.createElement("div");
+        label.className = "mark-label";
+        label.style.left = position + "%";
+        label.textContent = `${value}`;
+        this.marksContainer.appendChild(label);
+      }
     }
+  }
 
-    private _handleSliderInput(): void {
-        this._updateDisplay();
-        this.dispatchEvent(
-            new CustomEvent<CustomSliderEventDetail>("slider-change", {
-                detail: {
-                    value: this.slider.value,
-                    id: this.id,
-                },
-                bubbles: true,
-                composed: true,
-            }),
-        );
-    }
+  private render(): void {
+    const label = this.getAttribute("label") || "Slider";
+    const min = this.getAttribute("min") || "0";
+    const max = this.getAttribute("max") || "100";
+    const initialValue = this.getAttribute("value") || "50";
+    const step = this.getAttribute("step") || "1";
+    const id = this.id;
 
-    private _updateDisplay(): void {
-        const value = this.slider.value;
-        const unit = this.getAttribute("unit") || "";
-        let formattedValue: string;
-
-        if (unit === "$") {
-            formattedValue = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-            }).format(Number(value));
-        } else {
-            formattedValue = `${value}${unit}`;
-        }
-
-        this.valueDisplay.textContent = formattedValue;
-    }
-
-    private _createMarks(): void {
-        if (!this.marksContainer) return;
-
-        // Clear existing marks
-        this.marksContainer.innerHTML = "";
-
-        const markInterval = this.getAttribute("mark-interval");
-        const markLabelInterval = this.getAttribute("mark-label-interval");
-
-        // Only show marks if both attributes are present
-        if (!markInterval || !markLabelInterval) return;
-
-        const min = Number(this.getAttribute("min") || "0");
-        const max = Number(this.getAttribute("max") || "100");
-        const interval = Number(markInterval);
-        const labelInterval = Number(markLabelInterval);
-
-        const totalRange = max - min;
-
-        for (let value = min; value <= max; value += interval) {
-            const position = ((value - min) / totalRange) * 100;
-
-            // Create the mark line
-            const mark = document.createElement("div");
-            mark.className = "mark";
-            mark.style.left = position + "%";
-            this.marksContainer.appendChild(mark);
-
-            // Create the label if it's a label interval
-            if (value % labelInterval === 0) {
-                const label = document.createElement("div");
-                label.className = "mark-label";
-                label.style.left = position + "%";
-                label.textContent = `${value}`;
-                this.marksContainer.appendChild(label);
-            }
-        }
-    }
-
-    private render(): void {
-        const label = this.getAttribute("label") || "Slider";
-        const min = this.getAttribute("min") || "0";
-        const max = this.getAttribute("max") || "100";
-        const initialValue = this.getAttribute("value") || "50";
-        const step = this.getAttribute("step") || "1";
-        const id = this.id;
-
-        this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = `
       <style>
         :host {
             display: block;
@@ -248,44 +275,48 @@ class CustomSlider extends HTMLElement {
           <div class="value-display"></div>
       </div>
     `;
-    }
+  }
 }
 
 customElements.define("simple-slider", CustomSlider);
 
 class SimpleHeader extends HTMLElement {
-    private mobileMenuToggle!: HTMLButtonElement
-    private headerNav!: HTMLElement
-    shadowRoot!: ShadowRoot
+  private mobileMenuToggle!: HTMLButtonElement;
+  private headerNav!: HTMLElement;
+  shadowRoot!: ShadowRoot;
 
-    constructor() {
-        super()
-        this.shadowRoot = this.attachShadow({ mode: "open" })
-    }
+  constructor() {
+    super();
+    this.shadowRoot = this.attachShadow({ mode: "open" });
+  }
 
-    connectedCallback(): void {
-        this.render()
+  connectedCallback(): void {
+    this.render();
 
-        this.mobileMenuToggle = this.shadowRoot.querySelector(".mobile-menu-toggle") as HTMLButtonElement
-        this.headerNav = this.shadowRoot.querySelector(".header-nav") as HTMLElement
+    this.mobileMenuToggle = this.shadowRoot.querySelector(
+      ".mobile-menu-toggle",
+    ) as HTMLButtonElement;
+    this.headerNav = this.shadowRoot.querySelector(
+      ".header-nav",
+    ) as HTMLElement;
 
-        this.mobileMenuToggle.addEventListener("click", () => {
-            this.headerNav.classList.toggle("active")
-            this.mobileMenuToggle.classList.toggle("active")
-        });
+    this.mobileMenuToggle.addEventListener("click", () => {
+      this.headerNav.classList.toggle("active");
+      this.mobileMenuToggle.classList.toggle("active");
+    });
 
-        this.headerNav.querySelectorAll(".nav-link").forEach((link) => {
-            link.addEventListener("click", () => {
-                if (this.headerNav.classList.contains("active")) {
-                    this.headerNav.classList.remove("active")
-                    this.mobileMenuToggle.classList.remove("active")
-                }
-            })
-        })
-    }
+    this.headerNav.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (this.headerNav.classList.contains("active")) {
+          this.headerNav.classList.remove("active");
+          this.mobileMenuToggle.classList.remove("active");
+        }
+      });
+    });
+  }
 
-    private render(): void {
-        this.shadowRoot.innerHTML = `
+  private render(): void {
+    this.shadowRoot.innerHTML = `
             <style>
                 .dancing-script-1 {
                     font-family: "Dancing Script", cursive;
@@ -425,9 +456,8 @@ class SimpleHeader extends HTMLElement {
                     </nav>
                 </div>
             </header>
-        `
-    }
+        `;
+  }
 }
-
 
 customElements.define("simple-header", SimpleHeader);

@@ -1,7 +1,3 @@
-# AGENTS.md
-
-This file provides guidance for AI coding agents working in this repository.
-
 ## Project Overview
 
 SimpleCalc - A collection of web calculators (age, mortgage, tax, student loans, retirement) built with TypeScript and vanilla web components. Deployed via Cloudflare Workers with R2 bucket storage.
@@ -18,8 +14,6 @@ npm run typecheck
 # Install dependencies
 npm ci
 ```
-
-**Note:** No test framework or linter is currently configured. Type checking is enforced via TypeScript strict mode.
 
 ## Project Structure
 
@@ -40,12 +34,6 @@ npm ci
 - Use explicit `.js` extensions for all imports (even TypeScript files)
 - Example: `import { foo } from "./store.js"`
 - Group imports: external libraries first, then internal modules
-
-### Formatting
-- No semicolons (ASI)
-- Double quotes for strings
-- 4 spaces indentation
-- No trailing commas in single-line objects/arrays
 
 ### Naming Conventions
 - **Variables/functions**: camelCase (`calculateTotal`, `monthlyPayment`)

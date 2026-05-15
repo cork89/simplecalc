@@ -1,5 +1,5 @@
 import { CustomSliderEventDetail } from "./global"
-import { formatCurrency } from "./store.js"
+import { formatCurrency, formatCurrencyShort } from "./store.js"
 
 
 const radioButtons: NodeListOf<Element> = document.querySelectorAll('input[name="fileType"]')
@@ -7,9 +7,35 @@ const yearButtons: NodeListOf<Element> = document.querySelectorAll('input[name="
 const standardDeduction: HTMLElement = document.getElementById("standardDeduction") ?? (() => { throw new Error("standardDeduction cannot be null") })()
 const taxableIncome: HTMLElement = document.getElementById("taxableIncome") ?? (() => { throw new Error("taxableIncome cannot be null") })()
 const totalTaxes: HTMLElement = document.getElementById("totalTaxes") ?? (() => { throw new Error("totalTaxes cannot be null") })()
-const taxChart = document.getElementById("taxChart") ?? (() => { throw new Error("taxChart cannot be null") })()
+const taxChart: HTMLElement = document.getElementById("taxChart") ?? (() => { throw new Error("taxChart cannot be null") })()
 
-const ctx = (taxChart as HTMLCanvasElement).getContext("2d")
+type AgChartInstance = {
+    destroy?: () => void
+    update: (options: AgChartOptions) => Promise<void>
+}
+
+type AgChartOptions = {
+    container: HTMLElement
+    data: TaxChartDatum[]
+    series: Array<Record<string, unknown>>
+    axes: Record<string, Record<string, unknown>>
+    theme?: Record<string, unknown>
+    legend?: Record<string, unknown>
+}
+
+declare const agCharts: {
+    AgCharts: {
+        create: (options: AgChartOptions) => AgChartInstance
+    }
+}
+
+type TaxChartDatum = {
+    bracket: string
+    taxes: number
+    color: string
+}
+
+let chart: AgChartInstance | null = null
 
 enum FilingType {
     SINGLE,
@@ -512,140 +538,90 @@ function updateCalculations(): void {
 }
 
 function drawBarChart() {
-    if (!ctx) throw new Error("could not found canvas context")
-    const canvas = taxChart as HTMLCanvasElement;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    const brackets = taxStore.brackets;
-    const bracketLabels = ["10%", "12%", "22%", "24%", "32%", "35%", "37%"];
     const colors = [
         "#4CAF50", "#2196F3", "#FF9800", "#F44336",
         "#9C27B0", "#607D8B", "#795548"
-    ];
+    ]
+    const bracketLabels = ["10%", "12%", "22%", "24%", "32%", "35%", "37%"]
+    const data: TaxChartDatum[] = taxStore.brackets.map((taxes, index) => ({
+        bracket: bracketLabels[index],
+        taxes,
+        color: colors[index]
+    }))
 
-    const padding = 40
-    const bottomPadding = 100
-    const leftPadding = 100
-    const chartWidth = canvas.width - leftPadding - padding
-    const chartHeight = canvas.height - padding - bottomPadding
-    const barWidth = chartWidth / brackets.length
-
-    // Find max value for scaling
-    const maxValue = Math.max(...brackets, 1)
-
-    // Draw bars
-    brackets.forEach((value, index) => {
-        const barHeight = (value / maxValue) * chartHeight
-        const x = leftPadding + index * barWidth + barWidth * 0.1
-        const y = canvas.height - bottomPadding - barHeight
-        const width = barWidth * 0.8
-
-        ctx.fillStyle = colors[index]
-        ctx.fillRect(x, y, width, barHeight)
-
-        if (value > 0) {
-            ctx.save()
-            ctx.font = "12px Roboto"
-            ctx.textAlign = "center"
-            ctx.translate(x + width / 2, y - 5)
-            ctx.rotate(-Math.PI / 6)
-
-            const text = formatCurrency(value)
-            const textMetrics = ctx.measureText(text)
-            const textWidth = textMetrics.width
-            const textHeight = 12
-            const padding = 4
-
-            // Draw background box
-            ctx.fillStyle = "rgba(255, 255, 255, 0.9)"
-            ctx.fillRect(
-                -textWidth / 2 - padding,
-                -textHeight / 2 - padding,
-                textWidth + padding * 2,
-                textHeight + padding * 2
-            )
-
-            // Draw border
-            ctx.strokeStyle = "#ccc"
-            ctx.lineWidth = 1
-            ctx.strokeRect(
-                -textWidth / 2 - padding,
-                -textHeight / 2 - padding,
-                textWidth + padding * 2,
-                textHeight + padding * 2
-            )
-
-            // Draw text
-            ctx.fillStyle = "#333"
-            ctx.fillText(text, 0, 4) // Slight vertical adjustment for centering
-            ctx.restore()
-        }
-
-        // Draw bracket label
-        ctx.fillStyle = "#333"
-        ctx.font = "14px Roboto"
-        ctx.textAlign = "center"
-        ctx.fillText(
-            bracketLabels[index],
-            x + width / 2,
-            canvas.height - bottomPadding + 20
-        )
-    })
-
-    // Draw axes
-    ctx.strokeStyle = "#333"
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    // Y-axis
-    ctx.moveTo(leftPadding, padding)
-    ctx.lineTo(leftPadding, canvas.height - bottomPadding)
-    // X-axis
-    ctx.lineTo(canvas.width - padding, canvas.height - bottomPadding)
-    ctx.stroke()
-
-    // Y-axis labels and grid lines
-    ctx.fillStyle = "#666"
-    ctx.font = "12px Roboto"
-    ctx.textAlign = "right"
-    for (let i = 0; i <= 5; i++) {
-        const value = (maxValue / 5) * i
-        const y = canvas.height - bottomPadding - (chartHeight / 5) * i
-        ctx.fillText(formatCurrency(value), leftPadding - 10, y + 4)
-
-        // Grid lines
-        if (i > 0) {
-            ctx.strokeStyle = "#eee"
-            ctx.lineWidth = 1
-            ctx.beginPath()
-            ctx.moveTo(leftPadding, y)
-            ctx.lineTo(canvas.width - padding, y)
-            ctx.stroke()
-            ctx.strokeStyle = "#333" // Reset for axes
-            ctx.lineWidth = 2
+    const options: AgChartOptions = {
+        container: taxChart,
+        data,
+        series: [
+            {
+                type: "bar",
+                xKey: "bracket",
+                yKey: "taxes",
+                yName: "Tax Amount",
+                cornerRadius: 4,
+                itemStyler: ({ datum }: { datum: TaxChartDatum }) => ({
+                    fill: datum.color,
+                    stroke: datum.color
+                }),
+                label: {
+                    enabled: true,
+                    placement: "outside-end",
+                    color: "#333",
+                    fill: "rgba(255, 255, 255, 0.7)",
+                    fillOpacity: 1,
+                    padding: 4,
+                    cornerRadius: 2,
+                    border: {
+                        enabled: true,
+                        stroke: "#ccc"
+                    },
+                    itemStyler: ({ value }: { value: number }) => value > 0 ? {
+                        fill: "rgba(255, 255, 255, 0.9)",
+                        fillOpacity: 1,
+                        border: {
+                            enabled: true,
+                            stroke: "#ccc"
+                        }
+                    } : undefined,
+                    formatter: ({ value }: { value: number }) => value > 0 ? formatCurrency(value) : ""
+                }
+            }
+        ],
+        axes: {
+            x: {
+                type: "category",
+                position: "bottom",
+                title: {
+                    text: "Tax Brackets"
+                }
+            },
+            y: {
+                type: "number",
+                position: "left",
+                title: {
+                    text: "Tax Amount"
+                },
+                label: {
+                    formatter: ({ value }: { value: number }) => formatCurrencyShort(value)
+                }
+            }
+        },
+        theme: {
+            palette: {
+                fills: colors,
+                strokes: colors
+            }
+        },
+        legend: {
+            enabled: false
         }
     }
 
-    // Y-axis label
-    ctx.save()
-    ctx.translate(20, canvas.height / 2)
-    ctx.rotate(-Math.PI / 2)
-    ctx.fillStyle = "#333"
-    ctx.font = "16px Roboto"
-    ctx.textAlign = "center"
-    ctx.fillText("Tax Amount", 0, 0)
-    ctx.restore();
-
-    // X-axis label
-    ctx.fillStyle = "#333"
-    ctx.font = "16px Roboto"
-    ctx.textAlign = "center"
-    ctx.fillText(
-        "Tax Brackets",
-        leftPadding + chartWidth / 2,
-        canvas.height - 20
-    )
+    if (chart) {
+        void chart.update(options)
+        return
+    }
+    chart = agCharts.AgCharts.create(options)
 }
 
 document.body.addEventListener("slider-change", (event: CustomEvent<CustomSliderEventDetail>) => {
