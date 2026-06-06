@@ -15,7 +15,7 @@ const pageCases: PageCase[] = [
         fileName: "index.html",
         title: "Simple Calc",
         heading: "Simple Calculators",
-        initialText: ["approximately, everything you need", "Age", "Mortgage", "Student Loans", "Tax", "Retirement"],
+        initialText: ["approximately, everything you need", "Age", "Mortgage", "Student Loans", "Tax", "Retirement", "Words to Pages"],
     },
     {
         fileName: "age.html",
@@ -101,6 +101,16 @@ const pageCases: PageCase[] = [
         changedSliderText: {
             budget: "$5,000",
         },
+    },
+    {
+        fileName: "words-to-pages.html",
+        title: "Words to Pages Calculator",
+        heading: "Words to Pages Calculator",
+        initialText: [/80,000 words ≈ 320 pages \(at ~250 words\/page\)/],
+        sliderChanges: {
+            wordCountSlider: "100000",
+        },
+        changedText: [/100,000 words ≈ 400 pages \(at ~250 words\/page\)/],
     },
 ]
 
