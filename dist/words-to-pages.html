@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Words to Pages Calculator</title>
+    <meta name="description"
+        content="Convert word count to book pages. Estimate how many pages your manuscript or novel will be.">
+    <meta name="keywords"
+        content="words to pages, page count calculator, manuscript length, book pages, word count, simple calc">
+    <meta name="author" content="cork89">
+    <meta property="og:title" content="Words to Pages Calculator - Simple Calc">
+    <meta property="og:description"
+        content="Estimate how many book pages your writing will fill based on word count.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://calc.hearteyesemoji.dev/words-to-pages.html">
+    <meta property="og:image" content="https://calc.hearteyesemoji.dev/simplecalc.webp">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="calculator.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="components.js" type="module"></script>
+    <link rel="icon" href="simplecalc.ico" />
+    <script defer data-domain="calc.hearteyesemoji.dev"
+        src="https://plausible.hearteyesemoji.dev/js/script.js"></script>
+</head>
+
+<body>
+    <simple-header></simple-header>
+
+    <div class="container">
+        <h1>Words to Pages Calculator</h1>
+        <h2 class="rule-description">
+            This calculator estimates how many printed book pages your word count will fill.
+            The default of 250 words per page is a typical average for a paperback novel.
+        </h2>
+        <simple-slider id="wordCountSlider" label="Word count:" min="1000" max="200000" value="80000" step="1000"
+            mark-interval="10000" mark-label-interval="50000"></simple-slider>
+        <simple-slider id="wordsPerPageSlider" label="Words per page:" min="200" max="400" value="250" step="10"
+            mark-interval="25" mark-label-interval="50"></simple-slider>
+
+        <div class="result" id="result">
+            80,000 words ≈ 320 pages (at ~250 words/page)
+        </div>
+    </div>
+    <script src="store.js" type="module"></script>
+    <script src="words-to-pages.js" type="module"></script>
+</body>
+
+</html>

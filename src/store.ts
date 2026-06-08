@@ -50,12 +50,18 @@ type RetirementStore = {
     budget: number
 }
 
+type WordsToPagesStore = {
+    wordCount: number
+    wordsPerPage: number
+}
+
 const unifiedStorageKey = "unifiedStore"
 const studentLoanStorageKey = "studentLoanStore"
 const studentCompareStorageKey = "studentCompareStore"
 const compareStorageKey = "compareStore"
 const ageStorageKey = "ageStore"
 const retirementStorageKey = "retirementStore"
+const wordsToPagesStorageKey = "wordsToPagesStore"
 
 const storeDatabaseName = "simpleCalcStore"
 const storeDatabaseVersion = 1
@@ -272,6 +278,13 @@ function getDefaultRetirementStore(): RetirementStore {
     }
 }
 
+function getDefaultWordsToPagesStore(): WordsToPagesStore {
+    return {
+        wordCount: 80000,
+        wordsPerPage: 250,
+    }
+}
+
 function saveStore<T>(store: T, storageKey: string): void {
     void writeStore(store, storageKey).catch((e: unknown) => {
         console.error(`Failed to save ${storageKey}:`, e)
@@ -310,6 +323,8 @@ let ageStore: AgeStore = initializeStoreX(getDefaultAgeStore, ageStorageKey) as 
 
 let retirementStore: RetirementStore = initializeStoreX(getDefaultRetirementStore, retirementStorageKey) as RetirementStore
 
+let wordsToPagesStore: WordsToPagesStore = initializeStoreX(getDefaultWordsToPagesStore, wordsToPagesStorageKey) as WordsToPagesStore
+
 async function hydrateStore<T extends object>(store: T, getDefaultStore: () => T, storageKey: string): Promise<void> {
     try {
         const storedData = await readStore<T>(storageKey)
@@ -332,12 +347,14 @@ async function initializeStores(): Promise<void> {
         hydrateStore(compareStore, getDefaultCompareStore, compareStorageKey),
         hydrateStore(ageStore, getDefaultAgeStore, ageStorageKey),
         hydrateStore(retirementStore, getDefaultRetirementStore, retirementStorageKey),
+        hydrateStore(wordsToPagesStore, getDefaultWordsToPagesStore, wordsToPagesStorageKey),
     ])
 }
 
 export {
     ageStorageKey,
     retirementStorageKey,
+    wordsToPagesStorageKey,
     formatCurrency,
     formatCurrencyShort,
     calculateMonthlyPayment,
@@ -353,6 +370,7 @@ export {
     updateCompareStore,
     ageStore,
     retirementStore,
+    wordsToPagesStore,
 }
 
 export type {
@@ -362,4 +380,5 @@ export type {
     CompareStore,
     AgeStore,
     RetirementStore,
+    WordsToPagesStore,
 }
