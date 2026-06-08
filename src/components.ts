@@ -361,7 +361,7 @@ class SimpleHeader extends HTMLElement {
                 }
 
                 .mobile-menu-toggle {
-                    display: none;
+                    display: flex;
                     flex-direction: column;
                     background: none;
                     border: none;
@@ -380,63 +380,38 @@ class SimpleHeader extends HTMLElement {
                 }
 
                 .header-nav {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background-color: var(--primary-background);
+                    flex-direction: column;
+                    padding: var(--spacing-md);
+                    border-radius: var(--border-radius-lg);
+                    box-shadow: 0 4px 10px var(--shadow-color);
+                    gap: var(--spacing-xs);
+                    z-index: 1000;
+                }
+
+                .header-nav.active {
                     display: flex;
-                    gap: var(--spacing-sm);
                 }
 
                 .header-nav .nav-link {
                     color: var(--card-background);
                     text-decoration: none;
                     font-size: var(--font-size-base);
-                    padding: var(--spacing-xs) var(--spacing-sm);
+                    padding: var(--spacing-sm) var(--spacing-md);
                     border-radius: var(--border-radius);
                     transition: background-color 0.3s ease;
                     font-weight: 600;
                     white-space: nowrap;
+                    text-align: center;
                 }
 
                 .header-nav .nav-link:hover {
                     background-color: rgba(255, 255, 255, 0.2);
-                }
-
-                @media (max-width: 768px) {
-                    .main-header {
-                        padding: var(--spacing-sm) var(--spacing-md);
-                        margin-bottom: var(--spacing-lg);
-                    }
-
-                    .app-name {
-                        font-size: var(--font-size-xl);
-                    }
-
-                    .mobile-menu-toggle {
-                        display: flex;
-                    }
-
-                    .header-nav {
-                        display: none;
-                        position: absolute;
-                        top: 100%;
-                        left: 0;
-                        right: 0;
-                        background-color: var(--primary-background);
-                        flex-direction: column;
-                        padding: var(--spacing-md);
-                        border-radius: var(--border-radius-lg);
-                        box-shadow: 0 4px 10px var(--shadow-color);
-                        gap: var(--spacing-xs);
-                        z-index: 1000;
-                    }
-
-                    .header-nav.active {
-                        display: flex;
-                    }
-
-                    .header-nav .nav-link {
-                        padding: var(--spacing-sm) var(--spacing-md);
-                        text-align: center;
-                        border-radius: var(--border-radius);
-                    }
                 }
             </style>
             <header class="main-header">
