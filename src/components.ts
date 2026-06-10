@@ -103,7 +103,7 @@ class CustomSlider extends HTMLElement {
         maximumFractionDigits: 0,
       }).format(Number(value));
     } else {
-      formattedValue = `${value}${unit}`;
+      formattedValue = `${new Intl.NumberFormat("en-US").format(Number(value))}${unit}`;
     }
 
     this.valueDisplay.textContent = formattedValue;

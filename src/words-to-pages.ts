@@ -27,7 +27,7 @@ function calculatePages(): void {
     const roundedPages = Math.round(pages * 10) / 10
 
     result.className = "result"
-    result.textContent = `${formatNumber(wordCount)} words ≈ ${formatNumber(roundedPages)} pages (at ~${wordsPerPage} words/page)`
+    result.textContent = `${formatNumber(roundedPages)} pages`
     saveStore(wordsToPagesStore, wordsToPagesStorageKey)
 }
 
