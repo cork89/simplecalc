@@ -1,9 +1,7 @@
 dist/*.js
 node_modules
-<<<<<<< HEAD
 .playwright-mcp/
 .playwright-cli/
 test-results/
-=======
+.vitest/
 .DS_STORE
->>>>>>> 2435cc6 (.gitignore)

@@ -1,18 +1,18 @@
 ## Project Overview
 
-SimpleCalc - A collection of web calculators (age, mortgage, tax, student loans, retirement) built with TypeScript and vanilla web components. Deployed via Cloudflare Workers with R2 bucket storage.
+SimpleCalc - A collection of web calculators (age, mortgage, tax, student loans, retirement) built with TypeScript and vanilla web components. Deployed via Cloudflare Workers static assets.
 
 ## Build Commands
 
 ```bash
 # Build TypeScript (compiles src/ to dist/)
-npm run build
+pnpm run build
 
 # Type check without emitting build artifacts
-npm run typecheck
+pnpm run typecheck
 
 # Install dependencies
-npm ci
+pnpm install --frozen-lockfile
 ```
 
 ## Project Structure
@@ -93,5 +93,5 @@ Automatically deploys on push to main when changes affect:
 
 - Do not edit files in `dist/` directly - they are generated
 - HTML files in `dist/` are hand-written, not generated
-- Always run `npm run build` after modifying TypeScript files
+- Always run `pnpm run build` after modifying TypeScript files
 - Test changes by opening `dist/*.html` files in a browser

@@ -26,7 +26,7 @@ const pageCases: PageCase[] = [
             ageSlider: "40",
             yearSlider: "2030",
         },
-        changedText: [/Age in 2030: ~45 years old/],
+        changedText: [new RegExp(`Age in 2030: ~${40 + 2030 - new Date().getFullYear()} years old`)],
     },
     {
         fileName: "rule1.html",
