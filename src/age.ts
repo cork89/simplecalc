@@ -4,7 +4,7 @@ const ageSlider: HTMLElement = document.getElementById('ageSlider') ?? (() => { 
 const yearSlider: HTMLElement = document.getElementById('yearSlider') ?? (() => { throw new Error("yearSlider cannot be null") })()
 const result: HTMLElement = document.getElementById('result') ?? (() => { throw new Error("result cannot be null") })()
 
-const currentYear = 2025;
+const currentYear = new Date().getFullYear();
 
 function calculateAge() {
     if (!ageStore.age || ageStore.age < 0) {

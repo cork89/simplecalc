@@ -21,7 +21,7 @@ const pageCases: PageCase[] = [
         fileName: "age.html",
         title: "Age Calculator",
         heading: "Age Calculator",
-        initialText: [/Age in 2025: ~25 years old/],
+        initialText: [new RegExp(`Age in ${new Date().getFullYear()}: ~25 years old`)],
         sliderChanges: {
             ageSlider: "40",
             yearSlider: "2030",

@@ -265,7 +265,7 @@ function getDefaultCompareStore(): CompareStore {
 function getDefaultAgeStore(): AgeStore {
     return {
         age: 25,
-        year: 2025,
+        year: new Date().getFullYear(),
     }
 }
 
