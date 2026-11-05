@@ -19,7 +19,7 @@ npm ci
 
 - `src/` - TypeScript source files
 - `dist/` - Compiled JavaScript output (do not edit directly)
-- `worker.js` - Cloudflare Worker for serving static files from R2
+- `wrangler.jsonc` - Cloudflare Workers static assets config (serves `dist/`)
 - `.github/workflows/deploy.yml` - CI/CD pipeline
 
 ## Code Style Guidelines
@@ -87,12 +87,11 @@ Automatically deploys on push to main when changes affect:
 - `package.json`
 - `dist/**`
 
-Files are uploaded to Cloudflare R2 bucket via GitHub Actions.
+`wrangler deploy` publishes `dist/` as Workers static assets via GitHub Actions (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets).
 
 ## Important Notes
 
 - Do not edit files in `dist/` directly - they are generated
 - HTML files in `dist/` are hand-written, not generated
-- The `worker.js` file is plain JavaScript (not TypeScript)
 - Always run `npm run build` after modifying TypeScript files
 - Test changes by opening `dist/*.html` files in a browser
