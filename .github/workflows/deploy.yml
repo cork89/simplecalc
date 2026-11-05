@@ -1,14 +1,17 @@
-name: Upload to R2
+name: Deploy to Cloudflare Workers
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "src/**"
       - "package.json"
       - "dist/**"
+      - "wrangler.jsonc"
 
 jobs:
-  upload:
+  deploy:
     runs-on: ubuntu-latest
     environment: R2
     steps:
@@ -31,11 +34,8 @@ jobs:
       - name: Run Tests
         run: npm test && npm run test:e2e
 
-      - uses: ryand56/r2-upload-action@latest
-        with:
-          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.R2_BUCKET }}
-          source-dir: dist
-          destination-dir: .
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

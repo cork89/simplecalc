@@ -16,6 +16,7 @@
         "@vitest/ui": "^4.1.6",
         "fallow": "^2.73.0",
         "playwright": "^1.60.0",
-        "vitest": "^4.1.6"
+        "vitest": "^4.1.6",
+        "wrangler": "^4.158.0"
     }
 }
